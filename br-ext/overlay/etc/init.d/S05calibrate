@@ -1,0 +1,73 @@
+#!/bin/sh
+### BEGIN INIT INFO
+# Provides:          touch-calibrate-firstboot
+# Required-Start:    $local_fs $remote_fs
+# Required-Stop:
+# Default-Start:     2 3 4 5
+# Default-Stop:
+# Short-Description: Run touchscreen calibration on first boot
+### END INIT INFO
+
+CAL_MARKER
+# Show splash screen before calibration
+if command -v fbi >/dev/null 2>&1; then
+  fbi -T 1 -noverbose /etc/splash.ppm >/dev/null 2>&1 &
+  sleep 2
+fi
+="/etc/.touch_calibrated"
+TS_CAL="/etc/ts.cal"
+TS_CONF="/etc/ts.conf"
+TSPROGRAM="/usr/bin/ts_calibrate"
+
+# Only run if calibration program exists and not yet calibrated
+if [ -f "${CAL_MARKER
+# Show splash screen before calibration
+if command -v fbi >/dev/null 2>&1; then
+  fbi -T 1 -noverbose /etc/splash.ppm >/dev/null 2>&1 &
+  sleep 2
+fi
+}" ]; then
+  exit 0
+fi
+
+if [ ! -x "${TSPROGRAM}" ]; then
+  echo "[S05calibrate] ts_calibrate not found; skipping calibration" >&2
+  exit 0
+fi
+
+# Export TSLIB env so ts_calibrate can find device and conf
+export TSLIB_TSDEVICE=/dev/input/touchscreen0
+export TSLIB_CALIBFILE=${TS_CAL}
+export TSLIB_CONFFILE=${TS_CONF}
+
+# Run calibration as 'trezor' user to avoid running as root interactively
+if command -v start-stop-daemon >/dev/null 2>&1; then
+  start-stop-daemon -S -c trezor:trezor --exec ${TSPROGRAM} -- -f ${TS_CAL}
+  RC=$?
+else
+  ${TSPROGRAM} -f ${TS_CAL}
+  RC=$?
+fi
+
+if [ "${RC}" -eq 0 ]; then
+  # mark calibration done
+  touch "${CAL_MARKER
+# Show splash screen before calibration
+if command -v fbi >/dev/null 2>&1; then
+  fbi -T 1 -noverbose /etc/splash.ppm >/dev/null 2>&1 &
+  sleep 2
+fi
+}"
+  chmod 644 "${TS_CAL}" || true
+  echo "[S05calibrate] touchscreen calibrated successfully" >&2
+else
+  echo "[S05calibrate] touchscreen calibration failed (rc=${RC})" >&2
+fi
+
+# continue boot regardless
+exit 0
+
+# After calibration, show short message directly to framebuffer (tty1)
+if [ -c /dev/tty1 ]; then
+  echo "Calibration complete - starting wallet..." > /dev/tty1
+fi

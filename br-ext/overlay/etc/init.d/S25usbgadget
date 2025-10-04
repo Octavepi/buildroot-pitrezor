@@ -1,0 +1,7 @@
+#!/bin/sh
+modprobe g_ether || true
+sleep 1
+if ip link show usb0 >/dev/null 2>&1; then
+  ip link set dev usb0 up || true
+  ip addr add 169.254.9.1/16 dev usb0 || true
+fi

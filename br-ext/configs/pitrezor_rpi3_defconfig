@@ -1,0 +1,6 @@
+# pitrezor_rpi3_defconfig
+BR2_arm=y
+BR2_cortex_a7=y
+BR2_PACKAGE_TREZOR_FIRMWARE=y
+BR2_PACKAGE_FBTERM=y
+BR2_PACKAGE_FBI=y

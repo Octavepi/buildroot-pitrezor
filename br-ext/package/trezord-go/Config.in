@@ -1,0 +1,5 @@
+config BR2_PACKAGE_TREZORD_GO
+    bool "trezord-go (Trezor Bridge)"
+    depends on BR2_TOOLCHAIN_HAS_GO
+    help
+      Build trezord-go from source. Requires Go available in host toolchain.

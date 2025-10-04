@@ -1,0 +1,13 @@
+#!/bin/sh
+# Mount filesystems
+mount -a
+# Apply sysctls
+if [ -x /sbin/sysctl ]; then
+  for f in /etc/sysctl.d/*.conf; do
+    [ -f "$f" ] && sysctl -p "$f"
+  done
+fi
+# Run S* scripts
+for i in /etc/init.d/S*; do
+  [ -x "$i" ] && "$i"
+done

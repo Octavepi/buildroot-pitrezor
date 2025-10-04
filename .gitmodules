@@ -1,0 +1,12 @@
+[submodule "third_party/buildroot"]
+    path = third_party/buildroot
+    url = https://github.com/buildroot/buildroot.git
+[submodule "third_party/trezor-firmware"]
+    path = third_party/trezor-firmware
+    url = https://github.com/trezor/trezor-firmware.git
+[submodule "third_party/fbcp-ili9341"]
+    path = third_party/fbcp-ili9341
+    url = https://github.com/juj/fbcp-ili9341.git
+[submodule "third_party/LCD-show"]
+    path = third_party/LCD-show
+    url = https://github.com/waveshare/LCD-show.git

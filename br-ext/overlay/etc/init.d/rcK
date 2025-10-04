@@ -1,0 +1,5 @@
+#!/bin/sh
+# Run K* scripts on shutdown
+for i in /etc/init.d/K*; do
+  [ -x "$i" ] && "$i"
+done

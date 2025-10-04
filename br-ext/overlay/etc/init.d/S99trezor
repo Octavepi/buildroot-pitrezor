@@ -1,0 +1,39 @@
+# S99trezor: waits briefly to let first-boot tasks (calibration) run
+sleep 1
+#!/bin/sh
+### BEGIN INIT INFO
+# Provides:          trezor-emu
+# Default-Start:     5
+### END INIT INFO
+
+TREZOR_USER=trezor
+
+# Touchscreen: use tslib + evdev so SDL sees touch as mouse clicks
+export TSLIB_TSDEVICE=/dev/input/touchscreen0
+export TSLIB_CALIBFILE=/etc/ts.cal
+export TSLIB_CONFFILE=/etc/ts.conf
+# SDL2: allow evdev/tslib mouse
+export SDL_MOUSEDRV=TSLIB
+export SDL_MOUSEDEV=/dev/input/touchscreen0
+
+APP_DIR=/opt/trezor-firmware/core
+EMU_LAUNCH="cd ${APP_DIR} && env SDL_VIDEODRIVER=kmsdrm ./emu.py"
+
+# Start Bridge on localhost
+if command -v /usr/bin/trezord-go >/dev/null 2>&1; then
+  start-stop-daemon -S -b -m -p /run/trezord.pid     -c ${TREZOR_USER}:${TREZOR_USER}     -x /bin/sh -- -c "/usr/bin/trezord-go -e 21324 --address 127.0.0.1"
+fi
+
+# If usb0 exists, also bind trezord-go to 0.0.0.0 on usb0
+if ip link show usb0 >/dev/null 2>&1; then
+  if command -v /usr/bin/trezord-go >/dev/null 2>&1; then
+    start-stop-daemon -S -b -m -p /run/trezord-usb.pid       -c ${TREZOR_USER}:${TREZOR_USER}       -x /bin/sh -- -c "/usr/bin/trezord-go -e 21324 --address 0.0.0.0"
+  fi
+fi
+
+# Start emulator (unprivileged)
+if [ -f "${APP_DIR}/emu.py" ]; then
+  start-stop-daemon -S -b -m -p /run/trezor-emu.pid     -c ${TREZOR_USER}:${TREZOR_USER}     -x /bin/sh -- -c "${EMU_LAUNCH}"
+fi
+
+exit 0

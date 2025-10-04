@@ -1,0 +1,6 @@
+# pitrezor_rpi0_defconfig
+BR2_arm=y
+BR2_arm1176jzf_s=y
+BR2_PACKAGE_TREZOR_FIRMWARE=y
+BR2_PACKAGE_FBTERM=y
+BR2_PACKAGE_FBI=y

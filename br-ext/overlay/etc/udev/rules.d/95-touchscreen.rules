@@ -1,0 +1,3 @@
+# Symlink XPT2046/ADS7846 touchscreen to /dev/input/touchscreen0
+KERNEL=="event*", SUBSYSTEM=="input", ATTRS{name}=="ADS7846 Touchscreen", SYMLINK+="input/touchscreen0"
+KERNEL=="event*", SUBSYSTEM=="input", ATTRS{name}=="generic ft5x06 (79)", SYMLINK+="input/touchscreen0"

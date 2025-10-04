@@ -1,0 +1,5 @@
+menu "pitrezor external options"
+    source "$BR2_EXTERNAL_PITREZOR_PATH/package/trezord-go/Config.in"
+endmenu
+
+source "$BR2_EXTERNAL_PITREZOR_PATH/package/trezord-go/Config.in"

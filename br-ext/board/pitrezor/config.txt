@@ -1,0 +1,25 @@
+# ===== PiTrezor boot config (final lockdown) =====
+arm_64bit=1
+# Display (Waveshare 3.5" ili9341 + XPT2046)
+dtoverlay=waveshare35a,rotate=270,speed=62000000,fps=60
+dtoverlay=ads7846,penirq=25
+
+# Disable UART serial hardware (no serial console)
+enable_uart=0
+
+# Disable Wi-Fi and Bluetooth to remove wireless attack surface
+dtoverlay=disable-wifi
+dtoverlay=disable-bt
+
+# USB gadget (dwc2) for USB Ethernet gadget
+dtoverlay=dwc2
+
+# KMS DRM for HDMI (we mirror it to SPI with fbcp if needed)
+dtoverlay=vc4-kms-v3d
+max_framebuffers=2
+
+# Keep headless/quiet boot flags
+hdmi_force_hotplug=1
+avoid_warnings=1
+disable_overscan=1
+disable_splash=1

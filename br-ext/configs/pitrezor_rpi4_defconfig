@@ -1,0 +1,6 @@
+# pitrezor_rpi4_defconfig
+BR2_aarch64=y
+BR2_cortex_a72=y
+BR2_PACKAGE_TREZOR_FIRMWARE=y
+BR2_PACKAGE_FBTERM=y
+BR2_PACKAGE_FBI=y
