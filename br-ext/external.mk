@@ -1,3 +1,3 @@
-# External makefile for PiTrezor
-# Currently no global package logic is required.
-# This file exists so Buildroot can recognize br-ext/ as an external tree.
+# External.mk - tie external packages into buildroot
+
+include $(sort $(wildcard $(BR2_EXTERNAL_PITREZOR_PATH)/package/*/*.mk))
