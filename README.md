@@ -8,13 +8,7 @@
 ## Overview
 PiTrezor is a **Buildroot-based universal firmware image** that turns a Raspberry Pi (Zero, 3, 4) with a touchscreen display into a secure, standalone Trezor-like hardware wallet emulator.
 
-Features:
-- Universal build script with Pi Zero / Pi 3 / Pi 4 support
-- LCD overlay + rotation argument support
-- First-boot touchscreen calibration flow
-- Branded splash screen ("PiTrezor – Secure Wallet")
-- USB HID emulation for use with Trezor Suite
-- GPLv3 licensed
+---
 
 ## Quick Start
 
@@ -58,13 +52,9 @@ Example for Raspberry Pi 4 with LCD-show drivers and 180° rotation:
 
 ### 4. Flash and Boot
 
-After the build completes, flash:
-
-```
-output/images/sdcard.img
-```
-
-to your SD card and boot the Pi.
+**Recommended:** Use [Balena Etcher](https://etcher.balena.io) or [Raspberry Pi Imager](https://www.raspberrypi.com/software/) to write `output/images/sdcard.img` to your SD card.  
+These tools are safer and easier than command-line methods.
+Boot your Pi with the SD card and LCD attached.
 
 ### First Boot
 - Splash screen: **“PiTrezor – Secure Wallet”**
@@ -74,6 +64,39 @@ to your SD card and boot the Pi.
 ## Documentation
 See the [PiTrezor User Guide (PDF)](docs/PiTrezor_UserGuide.pdf) for detailed setup instructions.
 
+## Features
+
+- Universal build script with Pi Zero / Pi 3 / Pi 4 support
+- LCD overlay + rotation argument support
+- First-boot touchscreen calibration flow
+- Branded splash screen ("PiTrezor – Secure Wallet")
+- USB HID emulation for use with Trezor Suite
+- GPLv3 licensed
+
+---
+
+## Developer Notes
+
+### Config.in
+The file `br-ext/Config.in` is **auto-generated** by `build.sh` every time you run a build.  
+
+- Do **not** edit it manually.  
+- If you add a new package under `br-ext/package/`, just re-run `./build.sh ...` and it will be picked up automatically.  
+- Always commit the updated `Config.in` after a build if it changes.  
+
+### Build Script Paths
+`build.sh` auto-detects your repo root and passes absolute paths to Buildroot.  
+This ensures the build works regardless of where `docs/` or other folders sit.  
+
+---
+
+## Acknowledgment
+
+This build and repository were created with the assistance of ChatGPT.  
+Bring your ideas to life with [ChatGPT](https://chat.openai.com).
+
+---
+
 ## Contributing
 We welcome community contributions!  
 Please review the following before contributing:
@@ -82,8 +105,22 @@ Please review the following before contributing:
 - [Code of Conduct](CODE_OF_CONDUCT.md)  
 - [Security Policy](SECURITY.md)  
 
+---
+
 ## License
 This project is licensed under the [GPLv3](LICENSE).
+
+---
+
+## Support This Project
+
+If you’d like to support development:  
+
+- **Bitcoin**: `bc1qf2u9emuzsn2hqj3u0ypwuate0ammn2zm2k63gz`  
+- **Ethereum**: `0x87efd0009D4abaa4DD91c2B2452AE82CE3430CF6`  
+- **Solana**: `3MvBX4m6DzG2bv3ArvscQRBWSMPY1Jiqce5zUjkBfk4d`  
+- **Cash App**: `$Truth369`  
+- **Venmo**: `@Truth369`  
 
 ---
 PiTrezor – Secure Wallet  

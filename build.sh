@@ -13,13 +13,23 @@ if [ -z "$PI_MODEL" ] || [ -z "$LCD_OVERLAY" ] || [ -z "$ROTATION" ]; then
 fi
 
 # ------------------------------------------------------------------------------
-# Step 1: Auto-generate br-ext/Config.in with all packages
+# Step 1: Resolve absolute paths
 # ------------------------------------------------------------------------------
-CONFIG_FILE="br-ext/Config.in"
+REPO_ROOT=$(git rev-parse --show-toplevel 2>/dev/null || pwd)
+BR_EXT="$REPO_ROOT/br-ext"
+BUILDROOT_DIR="$REPO_ROOT/third_party/buildroot"
+
+echo "🔍 Using BR2_EXTERNAL=$BR_EXT"
+echo "🔍 Buildroot directory=$BUILDROOT_DIR"
+
+# ------------------------------------------------------------------------------
+# Step 2: Auto-generate br-ext/Config.in with all packages
+# ------------------------------------------------------------------------------
+CONFIG_FILE="$BR_EXT/Config.in"
 echo 'menu "External packages"' > $CONFIG_FILE
 echo "" >> $CONFIG_FILE
 
-for pkg in br-ext/package/*; do
+for pkg in $BR_EXT/package/*; do
     if [ -d "$pkg" ] && [ -f "$pkg/Config.in" ]; then
         pkgname=$(basename "$pkg")
         echo "source \"package/$pkgname/Config.in\"" >> $CONFIG_FILE
@@ -32,23 +42,21 @@ echo "endmenu" >> $CONFIG_FILE
 echo "✅ Regenerated $CONFIG_FILE"
 
 # ------------------------------------------------------------------------------
-# Step 2: Enter Buildroot and apply defconfig
+# Step 3: Enter Buildroot and apply defconfig
 # ------------------------------------------------------------------------------
-cd third_party/buildroot
-
-make BR2_EXTERNAL=../../br-ext pitrezor_${PI_MODEL}_defconfig
+cd $BUILDROOT_DIR
+make BR2_EXTERNAL=$BR_EXT pitrezor_${PI_MODEL}_defconfig
 
 # ------------------------------------------------------------------------------
-# Step 3: Build
+# Step 4: Build
 # ------------------------------------------------------------------------------
 make
 
 # ------------------------------------------------------------------------------
-# Step 4: Post-build overlay tweaks
+# Step 5: Post-build overlay tweaks
 # ------------------------------------------------------------------------------
-cd ../..
+cd $REPO_ROOT
 
-# Ensure boot config has LCD overlay & rotation
 BOOT_CONFIG="output/images/rpi-firmware/config.txt"
 mkdir -p $(dirname $BOOT_CONFIG)
 
