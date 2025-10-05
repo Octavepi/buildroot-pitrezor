@@ -1,7 +1,18 @@
-# Target
+# Target (Raspberry Pi 3 - ARMv8 in 32-bit mode)
 BR2_arm=y
 BR2_cortex_a53=y
 BR2_ARM_FPU_VFPV4D16=y
+# ==========================================================
+#  PiTrezor Buildroot defconfig
+#  Generated: 2025-10-05 18:18 UTC
+#  Notes:
+#    - Uses Raspberry Pi Foundation kernel (bcm* defconfigs)
+#    - Pins kernel headers to 6.1.x to match RPi LTS
+#    - Consistent paths via $(BR2_EXTERNAL_PITREZOR_PATH)
+#    - Enables trezord-go, lcd-show, fbcp packages
+# ==========================================================
+
+# Init & toolchain
 BR2_TOOLCHAIN_BUILDROOT_GLIBC=y
 BR2_INIT_BUSYBOX=y
 BR2_GLOBAL_PATCH_DIR=""
@@ -9,13 +20,58 @@ BR2_TARGET_GENERIC_HOSTNAME="pitrezor"
 BR2_TARGET_GENERIC_ISSUE="PiTrezor (Buildroot)"
 BR2_TARGET_GENERIC_REMOUNT_ROOTFS_RW=y
 
-# Rootfs overlay
+# Overlay & users
 BR2_ROOTFS_OVERLAY="$(BR2_EXTERNAL_PITREZOR_PATH)/overlay"
-
-# Disable getty/login
+BR2_ROOTFS_USERS_TABLES="$(BR2_EXTERNAL_PITREZOR_PATH)/board/pitrezor/users.txt"
 BR2_TARGET_GENERIC_GETTY=n
 
-# Linux kernel (Raspberry Pi 3 / bcm2709)
+# Firmware / boot files
+BR2_PACKAGE_RPI_FIRMWARE=y
+
+# Graphics & input (headless UI via SDL2, no X/Wayland)
+BR2_PACKAGE_LIBDRM=y
+BR2_PACKAGE_SDL2=y
+BR2_PACKAGE_SDL2_IMAGE=y
+BR2_PACKAGE_SDL2_IMAGE_PNG=y
+
+# Input / hotplug
+BR2_PACKAGE_EUDEV=y
+
+# Python (for launcher/helpers)
+BR2_PACKAGE_PYTHON3=y
+
+# Hardening helpers
+BR2_PACKAGE_IPTABLES=y
+BR2_PACKAGE_UTIL_LINUX=y
+BR2_PACKAGE_PROCPS_NG=y
+
+# Touchscreen utils
+BR2_PACKAGE_TSLIB=y
+BR2_PACKAGE_EVTEST=y
+BR2_PACKAGE_FBI=y
+
+# External packages (wrappers)
+BR2_PACKAGE_TREZORD_GO=y
+BR2_PACKAGE_LCD_SHOW=y
+BR2_PACKAGE_FBCP=y
+
+# Root filesystem (ext4), image creation
+BR2_TARGET_ROOTFS_EXT2=y
+BR2_TARGET_ROOTFS_EXT2_4=y
+BR2_TARGET_ROOTFS_EXT2_SIZE="256M"
+BR2_TARGET_ROOTFS_EXT2_LABEL="rootfs"
+BR2_TARGET_ROOTFS_TAR=y
+BR2_PACKAGE_HOST_GENIMAGE=y
+BR2_PACKAGE_HOST_DOSFSTOOLS=y
+BR2_PACKAGE_HOST_MTOOLS=y
+BR2_ROOTFS_POST_IMAGE_SCRIPT="$(BR2_EXTERNAL_PITREZOR_PATH)/board/pitrezor/post-image.sh"
+
+# Kernel headers (match RPi LTS 6.1.x)
+BR2_KERNEL_HEADERS_VERSION=y
+BR2_KERNEL_HEADERS_6_1=y
+BR2_DEFAULT_KERNEL_VERSION="6.1.77"
+
+# Linux kernel (RPi kernel tree)
 BR2_LINUX_KERNEL=y
 BR2_LINUX_KERNEL_USE_DEFCONFIG=y
 BR2_LINUX_KERNEL_CUSTOM_TARBALL=y
@@ -24,19 +80,7 @@ BR2_LINUX_KERNEL_DEFCONFIG="bcm2709_defconfig"
 BR2_LINUX_KERNEL_DTS_SUPPORT=y
 BR2_LINUX_KERNEL_INTREE_DTS_NAME="bcm2710-rpi-3-b"
 
-# Raspberry Pi firmware
-BR2_PACKAGE_RPI_FIRMWARE=y
+# Firmware variant
 BR2_PACKAGE_RPI_FIRMWARE_VARIANT_PI3=y
 BR2_PACKAGE_RPI_FIRMWARE_CONFIG_FILE="$(BR2_EXTERNAL_PITREZOR_PATH)/board/pitrezor/config.txt"
 BR2_PACKAGE_RPI_FIRMWARE_CMDLINE_FILE="$(BR2_EXTERNAL_PITREZOR_PATH)/board/pitrezor/cmdline.txt"
-
-# Common stack + hardening
-BR2_PACKAGE_LIBDRM=y
-BR2_PACKAGE_SDL2=y
-BR2_PACKAGE_PYTHON3=y
-BR2_PACKAGE_IPTABLES=y
-BR2_PACKAGE_UTIL_LINUX=y
-BR2_TARGET_ROOTFS_EXT2=y
-BR2_TARGET_ROOTFS_TAR=y
-BR2_PACKAGE_HOST_GENIMAGE=y
-BR2_PACKAGE_TSLIB=y
