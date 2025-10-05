@@ -1,70 +1,71 @@
 # PiTrezor – Secure Wallet (Universal Buildroot Image)
 
-PiTrezor is a Buildroot-based distribution that turns a Raspberry Pi into a Trezor Core emulator with full touchscreen support.  
-It includes a branded splash screen, one-time calibration flow, locked-down OS, and Trezor Bridge integration — making it behave as closely as possible to a real hardware wallet for development and personal use.  
+![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)
+![Build: Manual](https://img.shields.io/badge/build-manual-lightgrey.svg)
+![Platform: Raspberry Pi](https://img.shields.io/badge/platform-Raspberry%20Pi-red.svg)
+![Status: Stable](https://img.shields.io/badge/status-stable-brightgreen.svg)
 
-Supports Raspberry Pi Zero, 3, and 4 with multiple LCD overlays and rotation options.
+## Overview
+PiTrezor is a **Buildroot-based universal firmware image** that turns a Raspberry Pi (Zero, 3, 4) with a touchscreen display into a secure, standalone Trezor-like hardware wallet emulator.
 
----
+Features:
+- Universal build script with Pi Zero / Pi 3 / Pi 4 support
+- LCD overlay + rotation argument support
+- First-boot touchscreen calibration flow
+- Branded splash screen ("PiTrezor – Secure Wallet")
+- USB HID emulation for use with Trezor Suite
+- GPLv3 licensed
 
-# PiTrezor – Secure Wallet (Raspberry Pi)
+## Quick Start
 
-Minimal Buildroot-based image that boots a Trezor Core **emulator** on Raspberry Pi boards with touchscreens. Includes locked-down OS, splash screen, automatic first-boot calibration, and Trezor Bridge (trezord-go).
+### Clone the Repo
+Make sure to use `--recurse-submodules` so all dependencies are pulled in:
 
-> Note: This is an emulator for development/personal use. It does **not** provide the tamper resistance of real hardware.
-
-## Clone (with submodules)
 ```bash
-git clone --recurse-submodules https://github.com/YOUR_USERNAME/pitrezor.git
-cd pitrezor
+git clone --recurse-submodules git@github.com:Octavepi/buildroot-pitrezor.git
+cd buildroot-pitrezor
 ```
-If you forget the recurse flag:
+
+If you forgot to add `--recurse-submodules` during clone, run:
 ```bash
 git submodule update --init --recursive
 ```
 
-## Build prerequisites (Ubuntu)
+### Build Example
+To build for Raspberry Pi 4 with default LCD drivers and 180° rotation:
+
 ```bash
-sudo apt update
-sudo apt install -y build-essential git bc bison flex gettext libncurses5-dev   unzip rsync file wget python3 perl cpio diffutils sed patch tar pkg-config   scons clang llvm-dev protobuf-compiler cmake golang-go
+./build.sh rpi4 LCD-show 180
 ```
 
-## Build
-```bash
-./build.sh <board> <lcd_overlay> <rotation>
-```
-Examples:
-```bash
-./build.sh rpi4 waveshare35a 270
-./build.sh rpi3 LCD-show 180
-./build.sh rpi0 mylcd 0
-```
-Boards supported: Pi Zero (rpi0), Pi 3 (rpi3), Pi 4 (rpi4).  
-LCD overlays: any dtoverlay supported by Raspberry Pi OS (waveshare35a, LCD-show, etc.).  
-Rotation: 0, 90, 180, 270.
+### Output Image
+After the build completes, the SD card image will be available at:
 
-Image output: `third_party/buildroot/output/images/sdcard.img`
-
-## Flash to SD
-```bash
-sudo dd if=third_party/buildroot/output/images/sdcard.img of=/dev/sdX bs=4M status=progress conv=fsync
-sync
+```
+output/images/sdcard.img
 ```
 
-## First boot
-- Splash: **“PiTrezor – Secure Wallet”**
-- First boot only: touchscreen calibration (tap crosshairs)
-- Message: “Calibration complete – starting wallet…”
-- Emulator starts on TFT; tap on-screen Confirm/Cancel buttons.
+Flash this to an SD card and boot your Raspberry Pi.
 
-## Connect to Trezor Suite
-- Plug Pi → host with a data-capable USB cable
-- Host may auto-assign IP; if not, set host USB interface to `169.254.9.2/16`
-- Suite connects to Bridge at: `http://169.254.9.1:21324`
+### First Boot
+- Splash screen: **“PiTrezor – Secure Wallet”**
+- Touchscreen calibration runs once
+- Wallet starts automatically after calibration
 
-## Recalibrate
-- Delete `/etc/.touch_calibrated` from the SD card and reboot.
+## Documentation
+See the [PiTrezor User Guide (PDF)](docs/PiTrezor_UserGuide.pdf) for detailed setup instructions.
 
-## Recovery
-- Edit `/boot/firmware/config.txt` or `cmdline.txt` on the SD card
-- Or re-flash from a saved `sdcard.img`
+## Contributing
+We welcome community contributions!  
+Please review the following before contributing:
+
+- [Contributing Guidelines](CONTRIBUTING.md)  
+- [Code of Conduct](CODE_OF_CONDUCT.md)  
+- [Security Policy](SECURITY.md)  
+
+## License
+This project is licensed under the [GPLv3](LICENSE).
+
+---
+PiTrezor – Secure Wallet  
+© 2025 Octavepi

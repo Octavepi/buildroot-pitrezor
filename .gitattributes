@@ -1,0 +1,20 @@
+# Ensure consistent text file line endings
+* text=auto
+
+# Treat specific files as binary (no diff)
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.bmp binary
+*.ico binary
+*.pdf binary
+*.bin binary
+*.img binary
+*.so binary
+*.o binary
+*.a binary
+
+# Keep shell scripts and Makefiles with LF endings
+*.sh text eol=lf
+Makefile text eol=lf

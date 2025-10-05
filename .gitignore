@@ -1,0 +1,19 @@
+# Buildroot output
+/output/
+/third_party/buildroot/output/
+
+# Build artifacts
+*.o
+*.a
+*.so
+*.img
+*.bin
+*.tar
+*.gz
+
+# Logs
+*.log
+
+# Python cache
+__pycache__/
+*.pyc
