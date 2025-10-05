@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env bash
 # PiTrezor Build Script (buildroot)
 
 # Usage: ./build.sh <rpi0|rpi3|rpi4|rpi4-64> <overlay-name> <rotation>
