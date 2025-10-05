@@ -18,34 +18,53 @@ Features:
 
 ## Quick Start
 
-### Clone the Repo
-Make sure to use `--recurse-submodules` so all dependencies are pulled in:
+### 1. Install Build Dependencies
+
+PiTrezor builds have been tested on **Ubuntu 22.04 / 24.04 LTS** and other Debian-based distros.  
+Building on an **x86_64 machine (desktop/laptop)** is recommended, because Buildroot will cross-compile for ARM much faster than building natively on the Pi.
+
+On Ubuntu/Debian (x86_64 host):
+```bash
+sudo apt update
+sudo apt install -y build-essential git python3 unzip bc wget curl
+```
+
+On Raspberry Pi (native build — works but will be much slower):
+```bash
+sudo apt update
+sudo apt install -y build-essential git python3 unzip bc wget curl
+```
+
+### 2. Clone the Repo with Submodules
 
 ```bash
 git clone --recurse-submodules git@github.com:Octavepi/buildroot-pitrezor.git
 cd buildroot-pitrezor
 ```
 
-If you forgot to add `--recurse-submodules` during clone, run:
+If you forgot `--recurse-submodules`:
+
 ```bash
 git submodule update --init --recursive
 ```
 
-### Build Example
-To build for Raspberry Pi 4 with default LCD drivers and 180° rotation:
+### 3. Build for Your Raspberry Pi
+
+Example for Raspberry Pi 4 with LCD-show drivers and 180° rotation:
 
 ```bash
 ./build.sh rpi4 LCD-show 180
 ```
 
-### Output Image
-After the build completes, the SD card image will be available at:
+### 4. Flash and Boot
+
+After the build completes, flash:
 
 ```
 output/images/sdcard.img
 ```
 
-Flash this to an SD card and boot your Raspberry Pi.
+to your SD card and boot the Pi.
 
 ### First Boot
 - Splash screen: **“PiTrezor – Secure Wallet”**
