@@ -1,29 +1,60 @@
 #!/bin/bash
-# Usage: ./build.sh <board> <lcd_overlay> <rotation>
-# Example: ./build.sh rpi4 waveshare35a 270
+set -e
 
-BOARD=${1:-rpi4}
-LCD=${2:-waveshare35a}
-ROTATE=${3:-270}
+# Arguments
+PI_MODEL=$1
+LCD_OVERLAY=$2
+ROTATION=$3
 
-echo "Building for board: $BOARD, LCD: $LCD, rotation: $ROTATE"
-
-# Select correct defconfig based on board
-case "$BOARD" in
-  rpi0)   DEFCONFIG="pitrezor_rpi0_defconfig" ;;
-  rpi3)   DEFCONFIG="pitrezor_rpi3_defconfig" ;;
-  rpi4)   DEFCONFIG="pitrezor_rpi4_defconfig" ;;
-  *)      echo "Unknown board $BOARD"; exit 1 ;;
-esac
-
-# Patch config.txt with LCD + rotation
-CONFIG_FILE="br-ext/board/pitrezor/config.txt"
-if [ -f "$CONFIG_FILE" ]; then
-  sed -i "s|^dtoverlay=.*|dtoverlay=${LCD},rotate=${ROTATE},speed=62000000,fps=60|" $CONFIG_FILE
-else
-  echo "dtoverlay=${LCD},rotate=${ROTATE},speed=62000000,fps=60" >> $CONFIG_FILE
+if [ -z "$PI_MODEL" ] || [ -z "$LCD_OVERLAY" ] || [ -z "$ROTATION" ]; then
+    echo "Usage: $0 <pi-model> <overlay-name> <rotation>"
+    echo "Example: $0 rpi4 waveshare35a 180"
+    exit 1
 fi
 
-# Run Buildroot with the selected defconfig
-make -C third_party/buildroot BR2_EXTERNAL=../../br-ext ${DEFCONFIG}
-make -C third_party/buildroot
+# ------------------------------------------------------------------------------
+# Step 1: Auto-generate br-ext/Config.in with all packages
+# ------------------------------------------------------------------------------
+CONFIG_FILE="br-ext/Config.in"
+echo 'menu "External packages"' > $CONFIG_FILE
+echo "" >> $CONFIG_FILE
+
+for pkg in br-ext/package/*; do
+    if [ -d "$pkg" ] && [ -f "$pkg/Config.in" ]; then
+        pkgname=$(basename "$pkg")
+        echo "source \"package/$pkgname/Config.in\"" >> $CONFIG_FILE
+    fi
+done
+
+echo "" >> $CONFIG_FILE
+echo "endmenu" >> $CONFIG_FILE
+
+echo "✅ Regenerated $CONFIG_FILE"
+
+# ------------------------------------------------------------------------------
+# Step 2: Enter Buildroot and apply defconfig
+# ------------------------------------------------------------------------------
+cd third_party/buildroot
+
+make BR2_EXTERNAL=../../br-ext pitrezor_${PI_MODEL}_defconfig
+
+# ------------------------------------------------------------------------------
+# Step 3: Build
+# ------------------------------------------------------------------------------
+make
+
+# ------------------------------------------------------------------------------
+# Step 4: Post-build overlay tweaks
+# ------------------------------------------------------------------------------
+cd ../..
+
+# Ensure boot config has LCD overlay & rotation
+BOOT_CONFIG="output/images/rpi-firmware/config.txt"
+mkdir -p $(dirname $BOOT_CONFIG)
+
+cat <<EOF > $BOOT_CONFIG
+dtoverlay=$LCD_OVERLAY
+display_rotate=$ROTATION
+EOF
+
+echo "✅ Build complete. Image available at output/images/sdcard.img"

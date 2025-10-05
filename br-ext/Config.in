@@ -1,5 +1,6 @@
-menu "pitrezor external options"
-    source "$BR2_EXTERNAL_PITREZOR_PATH/package/trezord-go/Config.in"
-endmenu
+menu "External packages"
 
-source "$BR2_EXTERNAL_PITREZOR_PATH/package/trezord-go/Config.in"
+source "package/trezord-go/Config.in"
+source "package/lcd-show/Config.in"
+
+endmenu
