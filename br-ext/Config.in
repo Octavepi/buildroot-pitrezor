@@ -1,5 +1,7 @@
 menu "PiTrezor packages"
 
 source "$BR2_EXTERNAL_PITREZOR_PATH/package/trezord-go/Config.in"
+source "$BR2_EXTERNAL_PITREZOR_PATH/package/lcd-show/Config.in"
+source "$BR2_EXTERNAL_PITREZOR_PATH/package/fbcp/Config.in"
 
 endmenu

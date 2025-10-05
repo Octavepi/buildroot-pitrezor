@@ -28,11 +28,9 @@ BR_EXT="$SCRIPT_DIR/br-ext"
 BUILDROOT_DIR="$SCRIPT_DIR/third_party/buildroot"
 
 # Export external tree (critical: must point at br-ext root)
-export BR2_EXTERNAL="$BR_EXT"
-export BR2_EXTERNAL_PITREZOR_PATH="$BR_EXT"
+export BR2_EXTERNAL="$(pwd)/br-ext"
 
 echo "🔍 BR2_EXTERNAL=$BR2_EXTERNAL"
-echo "🔍 BR2_EXTERNAL_PITREZOR_PATH=$BR2_EXTERNAL_PITREZOR_PATH"
 echo "🔍 Buildroot directory=$BUILDROOT_DIR"
 echo "🔍 Pi model=$PI_MODEL  | overlay=$LCD_OVERLAY  | rotation=$ROTATION"
 echo "🔍 Defconfig=$DEFCONFIG"
@@ -48,9 +46,6 @@ fi
 CONFIG_IN="$BR_EXT/Config.in"
 cat > "$CONFIG_IN" <<'EOF'
 menu "PiTrezor packages"
-
-source "$BR2_EXTERNAL_PITREZOR_PATH/package/trezord-go/Config.in"
-source "$BR2_EXTERNAL_PITREZOR_PATH/package/lcd-show/Config.in"
 
 endmenu
 EOF

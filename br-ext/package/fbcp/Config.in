@@ -1,0 +1,4 @@
+config BR2_PACKAGE_FBCP
+    bool "fbcp-ili9341 (Framebuffer copy for SPI LCDs)"
+    help
+      Optimized framebuffer copy (fbcp-ili9341) for SPI-connected displays like Waveshare.

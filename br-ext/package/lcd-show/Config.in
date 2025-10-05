@@ -1,0 +1,4 @@
+config BR2_PACKAGE_LCD_SHOW
+    bool "LCD-show (Waveshare touchscreen drivers)"
+    help
+      Installs lcd-show scripts for Raspberry Pi displays.
