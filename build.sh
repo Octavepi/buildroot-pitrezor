@@ -1,74 +1,83 @@
 #!/usr/bin/env bash
-# PiTrezor Build Script (buildroot)
-
+# PiTrezor Build Script (enhanced)
 # Usage: ./build.sh <rpi0|rpi3|rpi4|rpi4-64> <overlay-name> <rotation>
-set -eu
-set -o pipefail
+# Example: ./build.sh rpi4-64 waveshare35a 180
+# Optional: CLEAN=1 ./build.sh ...
 
+set -euo pipefail
+
+# --- Error trap ---
+trap 'echo "❌ Build failed at line $LINENO"; exit 1' ERR
+
+# --- Args ---
 if [ $# -lt 3 ]; then
-  echo "❌ Missing arguments"
-  echo "Usage: $0 <rpi0|rpi3|rpi4|rpi4-64> <overlay-name> <rotation>"
-  exit 1
+    echo "Usage: $0 <rpi0|rpi3|rpi4|rpi4-64> <overlay-name> <rotation>"
+    exit 1
 fi
 
-PI_MODEL="$1"
+RPI_MODEL="$1"
 LCD_OVERLAY="$2"
 ROTATION="$3"
 
-case "$PI_MODEL" in
-  rpi0)
-    DEFCONFIG="pitrezor_rpi0_defconfig"
-    ;;
-  rpi3)
-    DEFCONFIG="pitrezor_rpi3_defconfig"
-    ;;
-  rpi4)
-    DEFCONFIG="pitrezor_rpi4_defconfig"
-    ;;
-  rpi4-64)
-    DEFCONFIG="pitrezor_rpi4_64_defconfig"
-    ;;
-  *)
-    echo "❌ Invalid model: $PI_MODEL (valid: rpi0 rpi3 rpi4 rpi4-64)"
-    exit 1
-    ;;
+case "$RPI_MODEL" in
+    rpi0)    DEFCONFIG="pitrezor_rpi0_defconfig" ;;
+    rpi3)    DEFCONFIG="pitrezor_rpi3_defconfig" ;;
+    rpi4)    DEFCONFIG="pitrezor_rpi4_defconfig" ;;
+    rpi4-64) DEFCONFIG="pitrezor_rpi4_64_defconfig" ;;
+    *) echo "Invalid model: $RPI_MODEL (valid: rpi0 rpi3 rpi4 rpi4-64)"; exit 1 ;;
 esac
 
-# Resolve directories
-SCRIPT_DIR="$(dirname "$(readlink -f "$0")")"
+# --- Paths ---
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 BUILDROOT_DIR="$SCRIPT_DIR/third_party/buildroot"
 BR_EXT="$SCRIPT_DIR/br-ext"
 
-# Export external tree
+# --- Export external trees ---
 export BR2_EXTERNAL="$BR_EXT"
+export BR2_EXTERNAL_PITREZOR_PATH="$BR_EXT"
 
-# Ensure buildroot exists
-if [ ! -d "$BUILDROOT_DIR" ]; then
-  echo "❌ Buildroot not found at $BUILDROOT_DIR"
-  echo "👉 Try: git submodule update --init --recursive"
-  exit 1
+# --- Clean if requested ---
+if [ "${CLEAN:-0}" -eq 1 ]; then
+    echo "🧹 Cleaning buildroot..."
+    make -C "$BUILDROOT_DIR" distclean || true
 fi
 
-# Regenerate br-ext/Config.in
-cat > "$BR_EXT/Config.in" <<EOF
+# --- Ensure buildroot exists ---
+if [ ! -d "$BUILDROOT_DIR" ]; then
+    echo "❌ Buildroot not found at $BUILDROOT_DIR"
+    echo "   Try: git submodule update --init --recursive"
+    exit 1
+fi
+
+# --- Generate br-ext/Config.in (wrappers) ---
+cat > "$BR_EXT/Config.in" <<'EOF'
 menu "PiTrezor packages"
-    source "$BR_EXT/package/trezord-go/Config.in"
-    source "$BR_EXT/package/fbcp/Config.in"
+    source "$BR2_EXTERNAL_PITREZOR_PATH/package/trezord-go/Config.in"
+    source "$BR2_EXTERNAL_PITREZOR_PATH/package/fbcp/Config.in"
 endmenu
 EOF
 
-# Build
+# --- Build ---
 cd "$BUILDROOT_DIR"
 
-# Apply defconfig and build
+echo "🔧 Applying defconfig: $DEFCONFIG"
 make BR2_EXTERNAL="$BR_EXT" "$DEFCONFIG"
-make BR2_EXTERNAL="$BR_EXT"
 
-# Pass overlay + rotation into environment
+echo "📦 Building with overlay=$LCD_OVERLAY rotation=$ROTATION"
 export LCD_OVERLAY="$LCD_OVERLAY"
 export LCD_ROTATION="$ROTATION"
 
-echo "✅ Build finished successfully!"
+# --- Logging build ---
+LOGFILE="$SCRIPT_DIR/build.log"
+make BR2_EXTERNAL="$BR_EXT" -j$(nproc) 2>&1 | tee "$LOGFILE"
 
-# Image will be here:
-echo "👉 Output image: $BUILDROOT_DIR/output/images/sdcard.img"
+# --- Results ---
+IMAGE="$BUILDROOT_DIR/output/images/sdcard.img"
+if [ -f "$IMAGE" ]; then
+    echo "✅ Build finished successfully."
+    echo "📂 Image: $IMAGE"
+    sha256sum "$IMAGE"
+else
+    echo "❌ Build did not produce sdcard.img"
+    exit 1
+fi
