@@ -61,8 +61,7 @@ Boot your Pi with the SD card and LCD attached.
 - Touchscreen calibration runs once
 - Wallet starts automatically after calibration
 
-## Documentation
-See the [PiTrezor User Guide (PDF)](docs/PiTrezor_UserGuide.pdf) for detailed setup instructions.
+---
 
 ## Features
 
@@ -72,6 +71,22 @@ See the [PiTrezor User Guide (PDF)](docs/PiTrezor_UserGuide.pdf) for detailed se
 - Branded splash screen ("PiTrezor – Secure Wallet")
 - USB HID emulation for use with Trezor Suite
 - GPLv3 licensed
+
+## Firmware Updates
+
+Unlike a real Trezor hardware wallet, PiTrezor cannot update firmware directly through Trezor Suite.  
+Suite expects a bootloader and flash memory layout that the Raspberry Pi does not have.  
+
+When Trezor firmware is updated upstream, you (or maintainers) must rebuild PiTrezor against the new firmware.  
+
+- New ready-to-flash images may be published under GitHub Releases.  
+- Users update by reflashing the new image with Balena Etcher or Raspberry Pi Imager.  
+- Your wallet seed remains valid; just restore it after flashing.  
+
+This approach keeps PiTrezor secure and avoids opening network or write-access paths inside the device.
+
+## Documentation
+See the [PiTrezor User Guide (PDF)](docs/PiTrezor_UserGuide.pdf) for detailed setup instructions.
 
 ---
 
