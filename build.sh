@@ -1,68 +1,73 @@
-#!/bin/bash
-set -e
+#!/usr/bin/env bash
+# PiTrezor Build Script (audited)
+# Usage: ./build.sh <rpi0|rpi3|rpi4|rpi4_64> <overlay-name> <rotation>
+set -euo pipefail
 
-# Arguments
-PI_MODEL=$1
-LCD_OVERLAY=$2
-ROTATION=$3
-
-if [ -z "$PI_MODEL" ] || [ -z "$LCD_OVERLAY" ] || [ -z "$ROTATION" ]; then
-    echo "Usage: $0 <pi-model> <overlay-name> <rotation>"
-    echo "Example: $0 rpi4 waveshare35a 180"
-    exit 1
+if [ $# -lt 3 ]; then
+  echo "❌ Missing arguments"
+  echo "Usage: ./build.sh <rpi0|rpi3|rpi4|rpi4_64> <overlay-name> <rotation>"
+  echo "Example: ./build.sh rpi4_64 waveshare35a 180"
+  exit 1
 fi
 
-# ------------------------------------------------------------------------------
-# Step 1: Resolve absolute paths
-# ------------------------------------------------------------------------------
-REPO_ROOT=$(git rev-parse --show-toplevel 2>/dev/null || pwd)
-BR_EXT="$REPO_ROOT/br-ext"
-BUILDROOT_DIR="$REPO_ROOT/third_party/buildroot"
+PI_MODEL="$1"
+LCD_OVERLAY="$2"
+ROTATION="$3"
 
-echo "🔍 Using BR2_EXTERNAL=$BR_EXT"
+case "$PI_MODEL" in
+  rpi0)    DEFCONFIG="pitrezor_rpi0_defconfig" ;;
+  rpi3)    DEFCONFIG="pitrezor_rpi3_defconfig" ;;
+  rpi4)    DEFCONFIG="pitrezor_rpi4_defconfig" ;;
+  rpi4_64) DEFCONFIG="pitrezor_rpi4_64_defconfig" ;;
+  *) echo "❌ Unknown Pi model: $PI_MODEL (valid: rpi0|rpi3|rpi4|rpi4_64)"; exit 1;;
+esac
+
+# Resolve directories
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+BR_EXT="$SCRIPT_DIR/br-ext"
+BUILDROOT_DIR="$SCRIPT_DIR/third_party/buildroot"
+
+# Export external tree (critical: must point at br-ext root)
+export BR2_EXTERNAL="$BR_EXT"
+export BR2_EXTERNAL_PITREZOR_PATH="$BR_EXT"
+
+echo "🔍 BR2_EXTERNAL=$BR2_EXTERNAL"
+echo "🔍 BR2_EXTERNAL_PITREZOR_PATH=$BR2_EXTERNAL_PITREZOR_PATH"
 echo "🔍 Buildroot directory=$BUILDROOT_DIR"
+echo "🔍 Pi model=$PI_MODEL  | overlay=$LCD_OVERLAY  | rotation=$ROTATION"
+echo "🔍 Defconfig=$DEFCONFIG"
 
-# ------------------------------------------------------------------------------
-# Step 2: Auto-generate br-ext/Config.in with all packages
-# ------------------------------------------------------------------------------
-CONFIG_FILE="$BR_EXT/Config.in"
-echo 'menu "External packages"' > $CONFIG_FILE
-echo "" >> $CONFIG_FILE
+# Ensure Buildroot exists
+if [ ! -f "$BUILDROOT_DIR/Makefile" ]; then
+  echo "❌ Buildroot not found at $BUILDROOT_DIR (is the submodule initialized?)"
+  echo "   Try: git submodule update --init --recursive"
+  exit 1
+fi
 
-for pkg in $BR_EXT/package/*; do
-    if [ -d "$pkg" ] && [ -f "$pkg/Config.in" ]; then
-        pkgname=$(basename "$pkg")
-        echo "source \"package/$pkgname/Config.in\"" >> $CONFIG_FILE
-    fi
-done
+# Regenerate br-ext/Config.in with absolute external var (no extra br-ext/ in path)
+CONFIG_IN="$BR_EXT/Config.in"
+cat > "$CONFIG_IN" <<'EOF'
+menu "PiTrezor packages"
 
-echo "" >> $CONFIG_FILE
-echo "endmenu" >> $CONFIG_FILE
+source "$BR2_EXTERNAL_PITREZOR_PATH/package/trezord-go/Config.in"
+source "$BR2_EXTERNAL_PITREZOR_PATH/package/lcd-show/Config.in"
 
-echo "✅ Regenerated $CONFIG_FILE"
-
-# ------------------------------------------------------------------------------
-# Step 3: Enter Buildroot and apply defconfig
-# ------------------------------------------------------------------------------
-cd $BUILDROOT_DIR
-make BR2_EXTERNAL=$BR_EXT pitrezor_${PI_MODEL}_defconfig
-
-# ------------------------------------------------------------------------------
-# Step 4: Build
-# ------------------------------------------------------------------------------
-make
-
-# ------------------------------------------------------------------------------
-# Step 5: Post-build overlay tweaks
-# ------------------------------------------------------------------------------
-cd $REPO_ROOT
-
-BOOT_CONFIG="output/images/rpi-firmware/config.txt"
-mkdir -p $(dirname $BOOT_CONFIG)
-
-cat <<EOF > $BOOT_CONFIG
-dtoverlay=$LCD_OVERLAY
-display_rotate=$ROTATION
+endmenu
 EOF
+echo "✅ Wrote $CONFIG_IN"
 
-echo "✅ Build complete. Image available at output/images/sdcard.img"
+# Build
+cd "$BUILDROOT_DIR"
+
+# Load selected defconfig (pass BR2_EXTERNAL explicitly)
+make BR2_EXTERNAL="$BR_EXT" ${DEFCONFIG}
+
+# Pass overlay/rotation for packages/scripts that consume them
+export LCD_OVERLAY="$LCD_OVERLAY"
+export LCD_ROTATION="$ROTATION"
+
+# Full build
+make BR2_EXTERNAL="$BR_EXT"
+
+echo "🎉 Build finished successfully!"
+echo "👉 Image is at: $BUILDROOT_DIR/output/images/sdcard.img"
