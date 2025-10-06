@@ -37,11 +37,7 @@ cat >> third_party/buildroot/.config <<EOF
 # Track Raspberry Pi kernel (stable branch)
 BR2_LINUX_KERNEL=y
 BR2_KERNEL_HEADERS_AS_KERNEL=y
-BR2_LINUX_KERNEL_CUSTOM_REPO_URL="https://github.com/raspberrypi/linux.git"
-BR2_LINUX_KERNEL_CUSTOM_REPO_VERSION="stable"
 
-# Match headers against stable kernel
-BR2_PACKAGE_HOST_LINUX_HEADERS_CUSTOM_6_1=y
 EOF
 
 # ---- Build ----
