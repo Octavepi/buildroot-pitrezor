@@ -1,19 +1,10 @@
-# Global toolchain and build hardening for PiTrezor
-
-# Stack smashing protection
+# PiTrezor hardening fragment
 BR2_SSP_STRONG=y
-
-# Fortify libc functions
-BR2_TOOLCHAIN_ENABLE_FORTIFY_SOURCE=y
-
-# Full RELRO
 BR2_RELRO_FULL=y
-
-# Position Independent Executables (PIE)
+BR2_FORTIFY_SOURCE=y
 BR2_PIE=y
-
-# Kernel headers must match kernel
-BR2_KERNEL_HEADERS_AS_KERNEL=y
-
-# Enforce read-only rootfs
-BR2_TARGET_GENERIC_REMOUNT_ROOTFS_RW=n
+BR2_SHARED_LIBS=y
+BR2_TARGET_ENABLE_DEBUG_INFO=n
+BR2_STRIP_strip=y
+BR2_TARGET_OPTIMIZATION="-O2"
+BR2_ROOTFS_READ_ONLY=y
