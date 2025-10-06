@@ -43,18 +43,8 @@ if [ -x third_party/buildroot/support/kconfig/merge_config.sh ]; then
 else
   cat "$HARDENING_FRAG" >> third_party/buildroot/.config
 fi
-
+echo "✅ Applied hardening fragment"
 make -C third_party/buildroot olddefconfig BR2_EXTERNAL="$BR2_EXT_PATH"
-
-# ---- Kernel (stable branch) ----
-cat >> third_party/buildroot/.config <<EOF
-# Track Raspberry Pi kernel (stable branch)
-BR2_LINUX_KERNEL=y
-BR2_KERNEL_HEADERS_AS_KERNEL=y
-BR2_LINUX_KERNEL_CUSTOM_REPO_URL="https://github.com/raspberrypi/linux.git"
-BR2_LINUX_KERNEL_CUSTOM_REPO_VERSION=stable
-BR2_PACKAGE_HOST_LINUX_HEADERS_CUSTOM_6_1=y
-EOF
 
 # ---- Build ----
 echo "🚀 Starting build for $MODEL..."
