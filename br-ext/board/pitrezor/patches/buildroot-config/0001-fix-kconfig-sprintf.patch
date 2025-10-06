@@ -1,0 +1,27 @@
+From 1234567890 Mon Sep 17 00:00:00 2001
+From: Octavepi <101262679+Octavepi@users.noreply.github.com>
+Date: Mon, 6 Oct 2025 15:00:00 +0000
+Subject: [PATCH] kconfig: replace unsafe sprintf with snprintf/vsnprintf
+
+Recent GCC versions treat unsafe sprintf as an error (FORTIFY).
+This patch updates util.c to use vsnprintf safely.
+
+---
+ support/kconfig/util.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
+
+diff --git a/support/kconfig/util.c b/support/kconfig/util.c
+index 3c2f4b9..d7b8b21 100644
+--- a/support/kconfig/util.c
++++ b/support/kconfig/util.c
+@@ -83,8 +83,10 @@ void xstrfmt(char *buf, size_t size, const char *fmt, ...)
+ {
+     va_list ap;
+-    sprintf(buf, fmt, ap);
+-    va_end(ap);
++    va_start(ap, fmt);
++    vsnprintf(buf, size, fmt, ap);
++    va_end(ap);
+ }
+ 
+ void *xmalloc(size_t size)
