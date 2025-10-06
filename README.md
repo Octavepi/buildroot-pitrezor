@@ -61,6 +61,12 @@ Boot your Pi with the SD card and LCD attached.
 - Touchscreen calibration runs once
 - Wallet starts automatically after calibration
 
+## ⚠️ Security Notes
+
+- Always use a strong passphrase with PiTrezor. Without one, keys/seeds on the SD card can be extracted.
+- Verify release signatures (`.sha256` and `.sig` files) before flashing an image.
+- No secure boot on Raspberry Pi — only trust images you build yourself or those signed by the maintainer.
+
 ---
 
 ## Features

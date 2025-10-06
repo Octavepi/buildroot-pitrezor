@@ -1,7 +1,6 @@
-menu "External packages"
-
-source "br-ext/package/trezord-go/Config.in"
-source "br-ext/package/fbcp/Config.in"
-source "br-ext/package/lcd-show/Config.in"
-
+# Top-level Config.in for PiTrezor br-ext
+menu "PiTrezor external packages"
+    source "$BR2_EXTERNAL_PITREZOR_PATH/package/trezord-go/Config.in"
+    source "$BR2_EXTERNAL_PITREZOR_PATH/package/fbcp/Config.in"
+    source "$BR2_EXTERNAL_PITREZOR_PATH/package/lcd-show/Config.in"
 endmenu
