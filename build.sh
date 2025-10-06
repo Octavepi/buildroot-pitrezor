@@ -36,14 +36,14 @@ HARDENING_FRAG="$BR2_EXT_PATH/hardening/pitrezor_hardening.fragment"
 if [ ! -f "$HARDENING_FRAG" ]; then
   echo "ERROR: Missing $HARDENING_FRAG"
   exit 1
+else
+echo "✅ Applied hardening fragment"
 fi
 
 if [ -x third_party/buildroot/support/kconfig/merge_config.sh ]; then
   third_party/buildroot/support/kconfig/merge_config.sh -m third_party/buildroot/.config "$HARDENING_FRAG"
 else
-  cat "$HARDENING_FRAG" >> third_party/buildroot/.config
-fi
-echo "✅ Applied hardening fragment"
+
 make -C third_party/buildroot olddefconfig BR2_EXTERNAL="$BR2_EXT_PATH"
 
 # ---- Build ----
