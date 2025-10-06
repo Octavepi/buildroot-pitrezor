@@ -4,25 +4,3 @@ menu "PiTrezor external packages"
     source "$BR2_EXTERNAL_PITREZOR_PATH/package/fbcp/Config.in"
     source "$BR2_EXTERNAL_PITREZOR_PATH/package/lcd-show/Config.in"
 endmenu
-
-# Global Config.in for PiTrezor external tree
-
-menu "PiTrezor Global Options"
-
-    config BR2_PITREZOR_HARDENING
-        bool "Enable PiTrezor global security hardening"
-        default y
-        help
-          Enable stack protection, RELRO, PIE, and fortified sources globally.
-
-endmenu
-
-# Apply global hardening toolchain options
-BR2_SSP_STRONG=y
-BR2_TOOLCHAIN_ENABLE_FORTIFY_SOURCE=y
-BR2_RELRO_FULL=y
-BR2_PIE=y
-
-# Enforce read-only rootfs (common across targets)
-BR2_TARGET_GENERIC_REMOUNT_ROOTFS_RW=n
-BR2_TARGET_ROOTFS_OVERLAY_RO=y

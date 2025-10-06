@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# PiTrezor build script (patched for RPi stable kernel/headers)
+# PiTrezor build script (patched for RPi stable kernel/headers + hardening)
 
 set -e
 set -o pipefail
@@ -11,7 +11,7 @@ trap 'echo "❌ Build failed at line $LINENO"; exit 1' ERR
 MODEL=$1
 if [ -z "$MODEL" ]; then
   echo "Usage: $0 <model>"
-  echo "Models: rpi3 rpi4 rpi464 clean"
+  echo "Models: rpi3 rpi4 rpi4-64 clean"
   exit 1
 fi
 
@@ -28,20 +28,36 @@ if [ "$CLEAN" = "clean" ]; then
 fi
 
 # ---- Deconfig ----
-echo "📐 Applying defconfig for $MODEL..."
-make -C third_party/buildroot BR2_EXTERNAL="$BR2_EXT_PATH" "${MODEL}_defconfig"
+echo "🛠 Applying defconfig for $MODEL..."
+make -C third_party/buildroot BR2_EXTERNAL="$BR2_EXT_PATH" $MODEL"_defconfig"
+
+# ---- Hardening fragment ----
+HARDENING_FRAG="$BR2_EXT_PATH/hardening/pitrezor_hardening.fragment"
+if [ ! -f "$HARDENING_FRAG" ]; then
+  echo "ERROR: Missing $HARDENING_FRAG"
+  exit 1
+fi
+
+if [ -x third_party/buildroot/support/kconfig/merge_config.sh ]; then
+  third_party/buildroot/support/kconfig/merge_config.sh -m third_party/buildroot/.config "$HARDENING_FRAG"
+else
+  cat "$HARDENING_FRAG" >> third_party/buildroot/.config
+fi
+
+make -C third_party/buildroot olddefconfig BR2_EXTERNAL="$BR2_EXT_PATH"
 
 # ---- Kernel (stable branch) ----
 cat >> third_party/buildroot/.config <<EOF
-
 # Track Raspberry Pi kernel (stable branch)
 BR2_LINUX_KERNEL=y
 BR2_KERNEL_HEADERS_AS_KERNEL=y
-
+BR2_LINUX_KERNEL_CUSTOM_REPO_URL="https://github.com/raspberrypi/linux.git"
+BR2_LINUX_KERNEL_CUSTOM_REPO_VERSION=stable
+BR2_PACKAGE_HOST_LINUX_HEADERS_CUSTOM_6_1=y
 EOF
 
 # ---- Build ----
-echo "🔨 Starting build for $MODEL..."
+echo "🚀 Starting build for $MODEL..."
 make -C third_party/buildroot BR2_EXTERNAL="$BR2_EXT_PATH" savedefconfig
 make -C third_party/buildroot BR2_EXTERNAL="$BR2_EXT_PATH"
 
