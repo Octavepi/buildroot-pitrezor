@@ -41,8 +41,8 @@ MODE="${4:-release}"     # "debug" to enable debug build toggles
 ############################
 ROOT_DIR="$(pwd)"
 BR_EXT="${ROOT_DIR}/br-ext"
-FRAGMENTS_DIR="${BR_EXT}/hardening"
-STRICT_FRAGMENT="${FRAGMENTS_DIR}/wallet_strict.fragment"
+FRAGMENTS_DIR="${BR_EXT}/configs"
+STRICT_FRAGMENT="${FRAGMENTS_DIR}/wallet_strict_fragment.config"
 OUTPUT_DIR="${ROOT_DIR}/output/${DECONFIG}"
 
 ############################
