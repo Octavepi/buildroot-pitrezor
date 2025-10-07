@@ -44,6 +44,7 @@ BR_EXT="${ROOT_DIR}/br-ext"
 FRAGMENTS_DIR="${BR_EXT}/configs"
 STRICT_FRAGMENT="${FRAGMENTS_DIR}/wallet_strict_fragment.config"
 OUTPUT_DIR="${ROOT_DIR}/output/${DECONFIG}"
+BUILDROOT_DIR="${ROOT_DIR}/third_party/buildroot"
 
 ############################
 # Sanity checks
