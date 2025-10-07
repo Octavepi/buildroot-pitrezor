@@ -107,7 +107,7 @@ make -C "${BUILDROOT_DIR}" "${DECONFIG}_defconfig" O="${OUTPUT_DIR}"
 ############################
 info "Applying strict wallet fragment → ${STRICT_FRAGMENT}"
 cat "${STRICT_FRAGMENT}" >> "${OUTPUT_DIR}/.config"
-yes '' | make -C "${BUILDROOT_DIR}" olddefconfig O="${OUTPUT_DIR}" >/dev/null
+make -C "${BUILDROOT_DIR}" olddefconfig O="${OUTPUT_DIR}" >/dev/null
 ok "Strict fragment applied."
 
 ############################
@@ -139,7 +139,7 @@ if [[ "${MODE}" == "debug" ]]; then
     echo 'BR2_STRIP_none=y'
     echo 'BR2_OPTIMIZE_0=y'
   } >> "${OUTPUT_DIR}/.config"
-  yes '' | make -C "${BUILDROOT_DIR}" olddefconfig O="${OUTPUT_DIR}" >/dev/null
+  make -C "${BUILDROOT_DIR}" olddefconfig O="${OUTPUT_DIR}" >/dev/null
   ok "Debug mode is ON (no stripping, -O0)."
 else
   info "Release mode (default): stripping & normal optimizations."
