@@ -148,7 +148,10 @@ fi
 ############################
 # Build
 ############################
-CPU="$(command -v nproc >/dev/null 2>&1 && nproc || echo 4)"
+CPU="$(command -v nproc >/dev/null 2>&1 && nproc || echo 2)"
+if [[ "${CPU}" -gt 2 ]]; then
+  CPU=2
+fi
 info "Starting build with ${CPU} threads…"
 make -C "${BUILDROOT_DIR}" -j"${CPU}" O="${OUTPUT_DIR}"
 
