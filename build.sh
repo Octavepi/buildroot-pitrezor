@@ -31,7 +31,12 @@ trap 'RC=$?; cleanup' EXIT
 ############################
 # Args & defaults
 ############################
-DECONFIG="${1:-rpi4-64}"
+if [[ -z "${1:-}" ]]; then
+  err "Usage: ./build.sh <deconfig> [overlay_name] [rotation] [debug]"
+  exit 1
+fi
+
+DECONFIG="$1"           # required (e.g., rpi4-64, rpi3, rpi4, rpi3-64)
 OVERLAY_NAME="${2:-}"    # e.g. waveshare35a, lcd35, etc.
 ROTATION="${3:-}"        # 0 | 90 | 180 | 270
 MODE="${4:-release}"     # "debug" to enable debug build toggles
@@ -54,7 +59,6 @@ BUILDROOT_DIR="${ROOT_DIR}/third_party/buildroot"
 
 # External tree (Buildroot will also look here for defconfigs & pkg Config.in)
 export BR2_EXTERNAL="${BR_EXT}"
-export BR2_EXTERNAL_PITREZOR_PATH="${BR_EXT}"
 
 # Friendly echo of context
 info "Root:          ${ROOT_DIR}"
@@ -96,14 +100,14 @@ fi
 info "Using defconfig: ${DEF_PATH}"
 
 info "Seeding .config from defconfig…"
-make -C buildroot "${DECONFIG}_defconfig" O="${OUTPUT_DIR}"
+make -C "${BUILDROOT_DIR}" "${DECONFIG}_defconfig" O="${OUTPUT_DIR}"
 
 ############################
 # Apply strict wallet fragment (surgical)
 ############################
 info "Applying strict wallet fragment → ${STRICT_FRAGMENT}"
 cat "${STRICT_FRAGMENT}" >> "${OUTPUT_DIR}/.config"
-yes '' | make -C buildroot olddefconfig O="${OUTPUT_DIR}" >/dev/null
+yes '' | make -C "${BUILDROOT_DIR}" olddefconfig O="${OUTPUT_DIR}" >/dev/null
 ok "Strict fragment applied."
 
 ############################
@@ -135,7 +139,7 @@ if [[ "${MODE}" == "debug" ]]; then
     echo 'BR2_STRIP_none=y'
     echo 'BR2_OPTIMIZE_0=y'
   } >> "${OUTPUT_DIR}/.config"
-  yes '' | make -C buildroot olddefconfig O="${OUTPUT_DIR}" >/dev/null
+  yes '' | make -C "${BUILDROOT_DIR}" olddefconfig O="${OUTPUT_DIR}" >/dev/null
   ok "Debug mode is ON (no stripping, -O0)."
 else
   info "Release mode (default): stripping & normal optimizations."
@@ -146,7 +150,7 @@ fi
 ############################
 CPU="$(command -v nproc >/dev/null 2>&1 && nproc || echo 4)"
 info "Starting build with ${CPU} threads…"
-make -C buildroot -j"${CPU}" O="${OUTPUT_DIR}"
+make -C "${BUILDROOT_DIR}" -j"${CPU}" O="${OUTPUT_DIR}"
 
 ############################
 # Results summary
