@@ -11,6 +11,7 @@
 
 set -Eeuo pipefail
 
+CPU=2
 ############################
 # Pretty logging helpers
 ############################
@@ -47,7 +48,6 @@ MODE="${4:-release}"     # "debug" to enable debug build toggles
 ROOT_DIR="$(pwd)"
 BR_EXT="${ROOT_DIR}/br-ext"
 FRAGMENTS_DIR="${BR_EXT}/configs"
-STRICT_FRAGMENT="${FRAGMENTS_DIR}/wallet_strict_fragment.config"
 OUTPUT_DIR="${ROOT_DIR}/output/${DECONFIG}"
 BUILDROOT_DIR="${ROOT_DIR}/third_party/buildroot"
 
@@ -55,7 +55,6 @@ BUILDROOT_DIR="${ROOT_DIR}/third_party/buildroot"
 # Sanity checks
 ############################
 [[ -d "${BR_EXT}" ]] || { err "Missing br-ext/ (external tree). Are you in the repo root?"; exit 1; }
-[[ -f "${STRICT_FRAGMENT}" ]] || { err "Missing strict fragment: ${STRICT_FRAGMENT}"; exit 1; }
 
 # External tree (Buildroot will also look here for defconfigs & pkg Config.in)
 export BR2_EXTERNAL="${BR_EXT}"
