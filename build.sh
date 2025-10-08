@@ -103,14 +103,6 @@ info "Seeding .config from defconfig…"
 make -C "${BUILDROOT_DIR}" "${DECONFIG}_defconfig" O="${OUTPUT_DIR}"
 
 ############################
-# Apply strict wallet fragment (surgical)
-############################
-info "Applying strict wallet fragment → ${STRICT_FRAGMENT}"
-cat "${STRICT_FRAGMENT}" >> "${OUTPUT_DIR}/.config"
-make -C "${BUILDROOT_DIR}" olddefconfig O="${OUTPUT_DIR}" >/dev/null
-ok "Strict fragment applied."
-
-############################
 # Overlay & rotation
 ############################
 if [[ -n "${OVERLAY_NAME}" ]]; then
@@ -148,11 +140,6 @@ fi
 ############################
 # Build
 ############################
-CPU="$(command -v nproc >/dev/null 2>&1 && nproc || echo 2)"
-if [[ "${CPU}" -gt 2 ]]; then
-  CPU=2
-fi
-info "Starting build with ${CPU} threads…"
 make -C "${BUILDROOT_DIR}" -j"${CPU}" O="${OUTPUT_DIR}"
 
 ############################
