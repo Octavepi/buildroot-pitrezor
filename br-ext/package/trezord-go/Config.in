@@ -1,5 +1,3 @@
 config BR2_PACKAGE_TREZORD_GO
-	bool "trezord-go (Trezor Bridge daemon)"
-	help
-	  Minimal Go-based daemon that allows Trezor devices to
-	  communicate with host software (Trezor Suite, etc.).
+	bool
+	default y

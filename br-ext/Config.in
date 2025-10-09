@@ -1,6 +1,7 @@
 # Top-level Config.in for PiTrezor br-ext
 
 source "$BR2_EXTERNAL_PITREZOR_PATH/package/trezord-go/Config.in"
+source "$BR2_EXTERNAL_PITREZOR_PATH/package/trezor-core/Config.in"
 
 menu "Optional utilities"
     source "$BR2_EXTERNAL_PITREZOR_PATH/package/fbcp/Config.in"
