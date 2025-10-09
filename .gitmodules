@@ -1,4 +1,4 @@
 [submodule "buildroot"]
 	path = buildroot
-	url = https://github.com/buildroot/buildroot.git
+	url = https://gitlab.buildroot.org/buildroot/buildroot.git
 	branch = master
