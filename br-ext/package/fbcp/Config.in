@@ -1,5 +1,5 @@
 config BR2_PACKAGE_FBCP
-	bool "fbcp (Framebuffer copy utility for SPI LCDs)"
-	help
-	  fbcp mirrors the primary framebuffer onto small SPI/I2C
-	  connected LCDs. Useful for Raspberry Pi touchscreens.
+    bool "fbcp"
+    help
+      fbcp is a framebuffer copy utility to mirror HDMI output to
+      SPI TFT LCDs. Enable this if you need support for older displays.

@@ -49,7 +49,7 @@ ROOT_DIR="$(pwd)"
 BR_EXT="${ROOT_DIR}/br-ext"
 FRAGMENTS_DIR="${BR_EXT}/configs"
 OUTPUT_DIR="${ROOT_DIR}/output/${DECONFIG}"
-BUILDROOT_DIR="${ROOT_DIR}/third_party/buildroot"
+BUILDROOT_DIR="${ROOT_DIR}/buildroot"
 
 ############################
 # Sanity checks

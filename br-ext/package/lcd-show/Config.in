@@ -1,5 +1,0 @@
-config BR2_PACKAGE_LCD_SHOW
-	bool "lcd-show (Waveshare LCD helper scripts)"
-	help
-	  Helper scripts from Waveshare's LCD-show repo for switching
-	  between display drivers on Raspberry Pi devices.
