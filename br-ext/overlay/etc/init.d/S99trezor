@@ -1,36 +1,30 @@
-# S99trezor: waits briefly to let first-boot tasks (calibration) run
-sleep 1
 #!/bin/sh
 ### BEGIN INIT INFO
-# Provides:          trezor-emu
+# Provides:          trezor-wallet
 # Default-Start:     5
 ### END INIT INFO
 
+sleep 1
 TREZOR_USER=trezor
-APP_DIR=/opt/trezor-firmware/core
-EMU_LAUNCH="cd ${APP_DIR} && env SDL_VIDEODRIVER=kmsdrm ./emu.py"
 
 # Touchscreen / SDL env
 export TSLIB_TSDEVICE=/dev/input/touchscreen0
-export TSLIB_CALIBFILE=/etc/ts.cal
-export TSLIB_CONFFILE=/etc/ts.conf
+export TSLIB_CALIBFILE=/data/tslib/ts.cal
+export TSLIB_CONFFILE=/data/tslib/ts.conf
 export SDL_MOUSEDEV=/dev/input/touchscreen0
 export SDL_MOUSEDRV=TSLIB
+export SDL_VIDEODRIVER=kmsdrm
 
-# If usb0 exists, start trezor-bridge bound to 0.0.0.0
+# Start trezor-bridge if usb0 exists
 if ip link show usb0 >/dev/null 2>&1; then
     if command -v /usr/bin/trezor-go >/dev/null 2>&1; then
-        start-stop-daemon -S -b -m -p /run/trezor-usb.pid \
-            -c ${TREZOR_USER}:${TREZOR_USER} \
-            -- /bin/sh -c "/usr/bin/trezor-go -e 21324 --address 0.0.0.0"
+        start-stop-daemon -S -b -m -p /run/trezor-usb.pid             -c ${TREZOR_USER}:${TREZOR_USER}             -- /bin/sh -c "/usr/bin/trezor-go -e 21324 --address 0.0.0.0"
     fi
 fi
 
-# Start emulator itself
-if [ -f "${APP_DIR}/emu.py" ]; then
-    start-stop-daemon -S -b -m -p /run/trezor-emu.pid \
-        -c ${TREZOR_USER}:${TREZOR_USER} \
-        -- /bin/sh -c "${EMU_LAUNCH}"
+# Start Trezor Core Wallet
+if [ -x /usr/bin/trezor-wallet ]; then
+    start-stop-daemon -S -b -m -p /run/trezor-core.pid         -c ${TREZOR_USER}:${TREZOR_USER}         --exec /usr/bin/trezor-wallet
 fi
 
 exit 0

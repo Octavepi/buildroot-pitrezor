@@ -23,20 +23,31 @@ if [ -n "${PITREZOR_ROT:-}" ]; then
     echo "display_rotate=${PITREZOR_ROT}" >> "${IMAGES_DIR}/config.txt"
 fi
 
-# === Prepare persistent calibration + config target ===
-mkdir -p "${TARGET_DIR}/data/tslib"
+# === Select DTB based on DECONFIG ===
+case "${DECONFIG}" in
+  rpi4-64|rpi4)
+    DTB="bcm2711-rpi-4-b.dtb"
+    ;;
+  rpi3-64|rpi3)
+    DTB="bcm2710-rpi-3-b.dtb"
+    ;;
+  rpi2)
+    DTB="bcm2709-rpi-2-b.dtb"
+    ;;
+  rpi0)
+    DTB="bcm2835-rpi-zero.dtb"
+    ;;
+  *)
+    echo "[post-image] Unknown board: ${DECONFIG}" >&2
+    exit 1
+    ;;
+esac
 
-: > "${TARGET_DIR}/data/tslib/ts.cal"
-chmod 644 "${TARGET_DIR}/data/tslib/ts.cal"
+# Generate board-specific genimage.cfg from template
+GENIMAGE_CFG="${BUILD_DIR}/genimage.cfg"
+sed "s|__DTB__|${DTB}|g" "${BOARD_DIR}/genimage.cfg.in" > "${GENIMAGE_CFG}"
 
-if [ ! -f "${TARGET_DIR}/data/tslib/ts.conf" ]; then
-    cp "${BOARD_DIR}/ts.conf" "${TARGET_DIR}/data/tslib/ts.conf"
-fi
-chmod 644 "${TARGET_DIR}/data/tslib/ts.conf"
-
-GENIMAGE_CFG="${BOARD_DIR}/genimage.cfg"
 GENIMAGE_TMP="${BUILD_DIR}/genimage.tmp"
-
 rm -rf "${GENIMAGE_TMP}"
 mkdir -p "${GENIMAGE_TMP}"
 

@@ -1,8 +1,7 @@
-\
 image boot.vfat {
   vfat {
     files = {
-      "bcm2711-rpi-4-b.dtb",
+      "__DTB__",
       "Image",
       "overlays",
       "fixup4.dat",
@@ -22,14 +21,15 @@ image rootfs.ext4 {
 }
 
 image sdcard.img {
-  hdimage {
-  }
+  hdimage { }
+
   partition boot {
     partition-type = 0xC
     bootable = "true"
     image = "boot.vfat"
     offset = 4M
   }
+
   partition rootfs {
     partition-type = 0x83
     image = "rootfs.ext4"
