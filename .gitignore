@@ -1,6 +1,6 @@
 # Buildroot output
 /output/
-/third_party/buildroot/output/
+/buildroot/output/
 
 # Build artifacts
 *.o
