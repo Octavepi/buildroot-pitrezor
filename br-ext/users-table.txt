@@ -1,2 +1,2 @@
 # name    uid gid  groups   password  home          shell
-trezor    -   -    -        *         /home/trezor  /bin/sh
+trezor    -   -    -        *         /home/trezor  /bin/false
