@@ -1,4 +1,4 @@
-#/dev/root /      ext4  ro,errors=remount-ro  0 1
+/dev/root /      ext4  ro,errors=remount-ro  0 1
 tmpfs     /tmp   tmpfs defaults,noexec,nosuid,nodev,mode=1777,size=64m 0 0
 tmpfs     /var   tmpfs defaults,noexec,nosuid,nodev,mode=0755,size=64m 0 0
 tmpfs     /run   tmpfs defaults,noexec,nosuid,nodev,mode=0755,size=32m 0 0
