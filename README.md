@@ -61,13 +61,13 @@ Example for Raspberry Pi 4 with waveshare35a drivers and 180° rotation:
   ./build.sh rpi4-64
   ```
 
-  → Saves `output/rpi4-64/base/base-rpi4-64.img`
+  → Saves `output/rpi4-64/base/images/`
 
 - Use `easy-bake.sh` to create a customized image quickly:
   ```bash
   ./easy-bake.sh rpi4-64 waveshare35a 180
   ```
-  → Produces `output/rpi4-64/easybake/rpi4-64-final.img`
+  → Produces `output/rpi4-64/easybake/images/sdcard.img`
 
 ### 4. Flash and Boot
 

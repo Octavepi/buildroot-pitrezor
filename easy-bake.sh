@@ -10,8 +10,8 @@ DECONFIG="$1"
 OVERLAYS="${2:-}"
 ROTATION="${3:-}"
 
-BASE_DIR="output/base/${DECONFIG}"
-OUTPUT_DIR="output/easybake/${DECONFIG}"
+BASE_DIR="output/${DECONFIG}/base"
+OUTPUT_DIR="output/${DECONFIG}/easybake"
 IMAGES_DIR="${OUTPUT_DIR}/images"
 
 if [[ ! -d "${BASE_DIR}" ]]; then

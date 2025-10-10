@@ -14,7 +14,11 @@ warn() { echo -e "⚠️  ${BOLD}$*${RESET}"; }
 err()  { echo -e "❌ ${BOLD}$*${RESET}" >&2; }
 
 cleanup() {
-  [[ ${RC:-0} -eq 0 ]] && ok "Build script finished." || err "Build script failed."
+  if [[ ${RC:-0} -eq 0 ]]; then
+    ok "Build script finished."
+  else
+    err "Build script failed."
+  fi
 }
 trap 'RC=$?; cleanup' EXIT
 
@@ -81,16 +85,12 @@ fi
 make -C "${BUILDROOT_DIR}" -j"${CPU}" O="${OUTPUT_DIR}"
 
 IMAGES_DIR="${OUTPUT_DIR}/images"
-if [[ -d "${IMAGES_DIR}" ]]; then
-  for c in sdcard.img disk.img; do
-    if [[ -f "${IMAGES_DIR}/${c}" && -z "${OVERLAY_NAME}" && -z "${ROTATION}" ]]; then
-      BASE_DIR="${OUTPUT_DIR}/base"
-      mkdir -p "${BASE_DIR}"
-      cp "${IMAGES_DIR}/${c}" "${BASE_DIR}/base-${DECONFIG}.img"
-      info "Saved clean base image to: ${BASE_DIR}/base-${DECONFIG}.img"
-      break
-    fi
-  done
+if [[ -d "${IMAGES_DIR}" && -z "${OVERLAY_NAME}" && -z "${ROTATION}" ]]; then
+  BASE_DIR="${OUTPUT_DIR}/base"
+  rm -rf "${BASE_DIR}"
+  mkdir -p "${BASE_DIR}"
+  cp -r "${IMAGES_DIR}" "${BASE_DIR}/"
+  info "Saved clean base images to: ${BASE_DIR}/images/"
 fi
 
 ok "Done."
