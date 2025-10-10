@@ -6,20 +6,24 @@ This project is a Buildroot-based Trezor Core emulator for Raspberry Pi with tou
 ## How to Contribute
 
 1. **Fork the Repository**
+
    - Fork `Octavepi/buildroot-pitrezor` to your own GitHub account.
    - Clone your fork locally.
 
 2. **Create a Branch**
+
    - Use a descriptive branch name:
      ```
      git checkout -b feature/add-display-driver
      ```
 
 3. **Make Your Changes**
+
    - Ensure your code is clean, minimal, and documented.
    - Follow existing coding and file structure conventions.
 
 4. **Commit Your Changes**
+
    - Use meaningful commit messages:
      ```
      git commit -m "Add support for Waveshare 4.3 display"
@@ -30,11 +34,16 @@ This project is a Buildroot-based Trezor Core emulator for Raspberry Pi with tou
      ```
      git push origin feature/add-display-driver
      ```
-   - Open a Pull Request (PR) on GitHub against `main`.
+   - Open a Pull Request (PR) against `audit/fixes` (required). PRs targeting other branches will be rejected by CI.
+   - Base your work off `dev` and keep it up to date. A bot sync keeps `dev` aligned with `audit/fixes` after merges.
 
 ## Guidelines
 
 - Keep commits focused and atomic.
+- Branch policy:
+  - Work from `dev`
+  - Submit PRs to `audit/fixes`
+  - Maintainers promote `dev` → `main` when ready (see GitHub Actions workflow "Promote dev to main").
 - If adding new LCD overlays or board support, update `README.md` and `docs/PiTrezor_UserGuide.pdf`.
 - Run a build locally before submitting PRs to confirm changes work.
 - Respect GPLv3 license terms — any derivative code must remain GPL-compatible.
