@@ -7,13 +7,17 @@
 ### END INIT INFO
 
 CAL_MARKER="/etc/.touch_calibrated"
-TS_CAL="/data/tslib/ts.cal"
-TS_CONF="/data/tslib/ts.conf"
+TS_DIR_PRIMARY="/data/tslib"
+TS_DIR_FALLBACK="/etc"
+TS_CAL="${TS_DIR_PRIMARY}/ts.cal"
+TS_CONF="${TS_DIR_PRIMARY}/ts.conf"
 TSPROGRAM="/usr/bin/ts_calibrate"
+SPLASH_PID=""
 
 # Show splash before calibration
-if command -v fbi >/dev/null 2>&1; then
+if command -v fbi >/dev/null 2>&1 && [ -f /etc/splash.ppm ]; then
     fbi -T 1 -noverbose /etc/splash.ppm >/dev/null 2>&1 &
+    SPLASH_PID=$!
     sleep 2
 fi
 
@@ -23,22 +27,33 @@ fi
 # Exit if ts_calibrate not installed
 [ ! -x "$TSPROGRAM" ] && exit 0
 
+# Ensure calibration directory exists (fallback to /etc if /data not writable)
+if ! mkdir -p "$TS_DIR_PRIMARY" 2>/dev/null; then
+    TS_CAL="${TS_DIR_FALLBACK}/ts.cal"
+    TS_CONF="${TS_DIR_FALLBACK}/ts.conf"
+fi
+
 # Export env so ts_calibrate finds device and config
 export TSLIB_TSDEVICE=/dev/input/touchscreen0
-export TSLIB_CALIBFILE=$TS_CAL
-export TSLIB_CONFFILE=$TS_CONF
+export TSLIB_CALIBFILE="$TS_CAL"
+export TSLIB_CONFFILE="$TS_CONF"
 
 # Run calibration
 if command -v start-stop-daemon >/dev/null 2>&1; then
-    start-stop-daemon -S -c trezor:trezor --exec "$TSPROGRAM" -- -f $TS_CAL
+    start-stop-daemon -S -c trezor:trezor --exec "$TSPROGRAM" -- -f "$TS_CAL"
 else
-    $TSPROGRAM -f $TS_CAL
+    "$TSPROGRAM" -f "$TS_CAL"
 fi
 RC=$?
 
 # Mark as done
 if [ "$RC" -eq 0 ]; then
     touch "$CAL_MARKER"
+fi
+
+# Stop splash if we started it
+if [ -n "$SPLASH_PID" ]; then
+    kill "$SPLASH_PID" >/dev/null 2>&1 || true
 fi
 
 exit 0
