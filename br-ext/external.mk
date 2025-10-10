@@ -3,5 +3,5 @@
 include $(sort $(wildcard $(BR2_EXTERNAL_PITREZOR_PATH)/package/*/*.mk))
 
 # Enforce PIE, RELRO, and hardening flags on all packages
-TARGET_CFLAGS += -fstack-protector-strong -D_FORTIFY_SOURCE=2 -fPIE -pie
-TARGET_LDFLAGS += -Wl,-z,relro,-z,now
+TARGET_CFLAGS += -fstack-protector-strong -D_FORTIFY_SOURCE=2 -fPIE
+TARGET_LDFLAGS += -Wl,-z,relro,-z,now -pie

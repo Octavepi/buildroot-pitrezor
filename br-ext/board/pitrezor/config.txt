@@ -1,8 +1,5 @@
-# ===== PiTrezor boot config (final lockdown) =====
+# ===== PiTrezor boot config (generic base) =====
 arm_64bit=1
-# Display (Waveshare 3.5" ili9341 + XPT2046)
-dtoverlay=waveshare35a,rotate=270,speed=62000000,fps=60
-dtoverlay=ads7846,penirq=25
 
 # Disable UART serial hardware (no serial console)
 enable_uart=0
