@@ -1,0 +1,70 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Bake base (rpi4-64)",
+      "type": "shell",
+      "command": "./bake.sh",
+      "args": ["rpi4-64"],
+      "isBackground": false,
+      "problemMatcher": [],
+      "group": "build"
+    },
+    {
+      "label": "Bake (prompted)",
+      "type": "shell",
+      "command": "./bake.sh",
+      "args": [
+        "${input:deconfigPick}",
+        "${input:overlayInput}",
+        "${input:rotationInput}"
+      ],
+      "isBackground": false,
+      "problemMatcher": [],
+      "group": "build"
+    },
+    {
+      "label": "Easy-bake example (rpi4-64)",
+      "type": "shell",
+      "command": "./easy-bake.sh",
+      "args": ["rpi4-64", "waveshare35a", "180"],
+      "isBackground": false,
+      "problemMatcher": [],
+      "group": "build"
+    },
+    {
+      "label": "Easy-bake (prompted)",
+      "type": "shell",
+      "command": "./easy-bake.sh",
+      "args": [
+        "${input:deconfigPick}",
+        "${input:overlayInput}",
+        "${input:rotationInput}"
+      ],
+      "isBackground": false,
+      "problemMatcher": [],
+      "group": "build"
+    }
+  ],
+  "inputs": [
+    {
+      "id": "deconfigPick",
+      "type": "pickString",
+      "description": "Select Raspberry Pi defconfig",
+      "options": ["rpi0", "rpi2", "rpi3", "rpi3-64", "rpi4", "rpi4-64"],
+      "default": "rpi4-64"
+    },
+    {
+      "id": "overlayInput",
+      "type": "promptString",
+      "description": "Comma-separated dtoverlay list (optional)",
+      "default": ""
+    },
+    {
+      "id": "rotationInput",
+      "type": "promptString",
+      "description": "display_rotate (0|90|180|270) (optional)",
+      "default": ""
+    }
+  ]
+}

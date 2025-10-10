@@ -8,6 +8,24 @@
 
 set -Eeuo pipefail
 
+need() { command -v "$1" >/dev/null 2>&1; }
+
+# Run a command with elevated privileges using sudo/doas if available,
+# or directly when already running as root. Error out if no method is available.
+as_root() {
+  if need sudo; then
+    sudo "$@"
+  elif [ "$(id -u)" -eq 0 ]; then
+    "$@"
+  elif need doas; then
+    doas "$@"
+  else
+    echo "❌ This operation requires root privileges, but neither 'sudo' nor 'doas' is available, and you're not root."
+    echo "   Please install sudo (recommended) or run this script as root."
+    exit 1
+  fi
+}
+
 if [[ -z "${1:-}" ]]; then
   echo "Usage: ./easy-bake.sh <deconfig> [overlays] [rotation]"
   exit 1
@@ -35,20 +53,28 @@ echo "✅ Copied base image to: ${OUT_IMG}"
 # We'll mount the boot (FAT) partition from the image to patch config.txt
 MNT=""
 LOOPDEV=""
+KPARTX_MAP=""
 
 cleanup() {
   set +e
-  if mountpoint -q -- "${MNT}"; then sudo umount "${MNT}"; fi
+  if mountpoint -q -- "${MNT}"; then as_root umount "${MNT}"; fi
   [[ -n "${MNT}" && -d "${MNT}" ]] && rmdir "${MNT}" 2>/dev/null || true
+  if [[ -n "${KPARTX_MAP}" ]] && need kpartx; then
+    as_root kpartx -d "${OUT_IMG}" >/dev/null 2>&1 || true
+  fi
   if [[ -n "${LOOPDEV}" ]]; then
-    # Try partprobe/losetup detach
-    sudo losetup -d "${LOOPDEV}" 2>/dev/null || true
+    as_root losetup -d "${LOOPDEV}" 2>/dev/null || true
   fi
 }
 trap cleanup EXIT
 
 # Create loop device with partition scan
-LOOPDEV=$(sudo losetup --find --show --partscan "${OUT_IMG}")
+need losetup || { echo "❌ Missing 'losetup' host tool"; exit 1; }
+need mount   || { echo "❌ Missing 'mount' host tool"; exit 1; }
+need sed     || { echo "❌ Missing 'sed' host tool"; exit 1; }
+need grep    || { echo "❌ Missing 'grep' host tool"; exit 1; }
+
+LOOPDEV=$(as_root losetup --find --show --partscan "${OUT_IMG}")
 if [[ -z "${LOOPDEV}" ]]; then
   echo "❌ Failed to setup loop device"
   exit 1
@@ -58,10 +84,10 @@ fi
 BOOT_PART="${LOOPDEV}p1"
 if [[ ! -e "${BOOT_PART}" ]]; then
   # Some systems map as /dev/loop0p1, others via kpartx. Try kpartx fallback.
-  if command -v kpartx >/dev/null 2>&1; then
-    MAP=$(sudo kpartx -as "${OUT_IMG}" | awk 'NR==1{print $3}')
-    if [[ -n "${MAP}" && -e "/dev/mapper/${MAP}" ]]; then
-      BOOT_PART="/dev/mapper/${MAP}"
+  if need kpartx; then
+    KPARTX_MAP=$(as_root kpartx -as "${OUT_IMG}" | awk 'NR==1{print $3}')
+    if [[ -n "${KPARTX_MAP}" && -e "/dev/mapper/${KPARTX_MAP}" ]]; then
+      BOOT_PART="/dev/mapper/${KPARTX_MAP}"
     fi
   fi
 fi
@@ -72,7 +98,7 @@ if [[ ! -e "${BOOT_PART}" ]]; then
 fi
 
 MNT="$(mktemp -d)"
-sudo mount "${BOOT_PART}" "${MNT}"
+as_root mount "${BOOT_PART}" "${MNT}"
 
 CONFIG_TXT="${MNT}/config.txt"
 if [[ ! -f "${CONFIG_TXT}" ]]; then
@@ -80,19 +106,22 @@ if [[ ! -f "${CONFIG_TXT}" ]]; then
   exit 1
 fi
 
-# Remove existing lines we'll override to avoid duplicates
-sudo sed -i '/^dtoverlay=/d' "${CONFIG_TXT}"
-sudo sed -i '/^display_rotate=/d' "${CONFIG_TXT}"
+# Remove existing display rotation to avoid duplicates; keep base dtoverlay lines
+as_root sed -i '/^display_rotate=/d' "${CONFIG_TXT}"
 
 if [[ -n "${OVERLAYS}" ]]; then
   IFS=',' read -r -a DTOS <<< "${OVERLAYS}"
   for dto in "${DTOS[@]}"; do
-    [[ -n "${dto}" ]] && echo "dtoverlay=${dto}" | sudo tee -a "${CONFIG_TXT}" >/dev/null
+    [[ -z "${dto}" ]] && continue
+    # Append only if not already present (exact match)
+    if ! grep -qE "^dtoverlay=${dto}$" "${CONFIG_TXT}"; then
+      echo "dtoverlay=${dto}" | as_root tee -a "${CONFIG_TXT}" >/dev/null
+    fi
   done
 fi
 
 if [[ -n "${ROTATION}" ]]; then
-  echo "display_rotate=${ROTATION}" | sudo tee -a "${CONFIG_TXT}" >/dev/null
+  echo "display_rotate=${ROTATION}" | as_root tee -a "${CONFIG_TXT}" >/dev/null
 fi
 
 sync

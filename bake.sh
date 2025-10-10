@@ -62,6 +62,24 @@ info "Using defconfig: ${DEF_PATH}"
 
 make -C "${BUILDROOT_DIR}" "${DECONFIG}_defconfig" O="${OUTPUT_DIR}"
 
+# Ensure any global patch directories declared in the config exist to avoid Buildroot errors
+if [[ -f "${OUTPUT_DIR}/.config" ]]; then
+  PATCH_DIRS=$(awk -F\" '/^BR2_GLOBAL_PATCH_DIR=/{print $2}' "${OUTPUT_DIR}/.config" || true)
+  if [[ -n "${PATCH_DIRS}" ]]; then
+    for d in ${PATCH_DIRS}; do
+      [[ -z "${d}" ]] && continue
+      # Resolve relative paths from repo root
+      if [[ "${d}" = /* ]]; then
+        PDIR="${d}"
+      else
+        PDIR="${ROOT_DIR}/${d}"
+      fi
+      mkdir -p "${PDIR}"
+      info "Ensured patch dir exists: ${PDIR}"
+    done
+  fi
+fi
+
 if [[ -n "${OVERLAY_NAME}" ]]; then
   export PITREZOR_DTO="${OVERLAY_NAME}"
 fi

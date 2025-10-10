@@ -29,9 +29,12 @@ fi
 # === Auto-detect DTB by probing BINARIES_DIR for known Raspberry Pi DTBs ===
 DTB=""
 for candidate in \
+    "bcm2712-rpi-5-b.dtb" \
     "bcm2711-rpi-4-b.dtb" \
+    "bcm2710-rpi-3-b-plus.dtb" \
     "bcm2710-rpi-3-b.dtb" \
     "bcm2709-rpi-2-b.dtb" \
+    "bcm2710-rpi-zero-2-w.dtb" \
     "bcm2835-rpi-zero.dtb"; do
     if [ -f "${IMAGES_DIR}/${candidate}" ]; then
         DTB="${candidate}"
@@ -47,14 +50,17 @@ fi
 
 echo "[post-image] Detected DTB: ${DTB}"
 
-# === Auto-select firmware blobs (Pi 4 uses start4/fixup4, others use start/fixup) ===
-if [ "${DTB}" = "bcm2711-rpi-4-b.dtb" ]; then
-    FIXUP_BLOB="fixup4.dat"
-    START_BLOB="start4.elf"
-else
-    FIXUP_BLOB="fixup.dat"
-    START_BLOB="start.elf"
-fi
+# === Auto-select firmware blobs (Pi 4/5 use start4/fixup4, older use start/fixup) ===
+case "${DTB}" in
+    bcm2711-*.dtb|bcm2712-*.dtb)
+        FIXUP_BLOB="fixup4.dat"
+        START_BLOB="start4.elf"
+        ;;
+    *)
+        FIXUP_BLOB="fixup.dat"
+        START_BLOB="start.elf"
+        ;;
+esac
 
 echo "[post-image] Using firmware: ${START_BLOB}, ${FIXUP_BLOB}"
 
