@@ -26,8 +26,11 @@
     {
       "label": "Easy-bake example (rpi4-64)",
       "type": "shell",
-      "command": "./easy-bake.sh",
-      "args": ["rpi4-64", "waveshare35a", "180"],
+      "command": "bash",
+      "args": [
+        "-lc",
+        "./scripts/verify-base.sh rpi4-64 && ./easy-bake.sh rpi4-64 waveshare35a 180"
+      ],
       "isBackground": false,
       "problemMatcher": [],
       "group": "build"
@@ -35,11 +38,10 @@
     {
       "label": "Easy-bake (prompted)",
       "type": "shell",
-      "command": "./easy-bake.sh",
+      "command": "bash",
       "args": [
-        "${input:deconfigPick}",
-        "${input:overlayInput}",
-        "${input:rotationInput}"
+        "-lc",
+        "./scripts/verify-base.sh ${input:deconfigPick} && ./easy-bake.sh ${input:deconfigPick} ${input:overlayInput} ${input:rotationInput}"
       ],
       "isBackground": false,
       "problemMatcher": [],

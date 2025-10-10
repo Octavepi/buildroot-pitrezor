@@ -62,13 +62,14 @@ info "Using defconfig: ${DEF_PATH}"
 
 make -C "${BUILDROOT_DIR}" "${DECONFIG}_defconfig" O="${OUTPUT_DIR}"
 
-# Ensure any global patch directories declared in the config exist to avoid Buildroot errors
+# Ensure any global patch directories declared in the config exist, and rewrite to absolute paths
 if [[ -f "${OUTPUT_DIR}/.config" ]]; then
   PATCH_DIRS=$(awk -F\" '/^BR2_GLOBAL_PATCH_DIR=/{print $2}' "${OUTPUT_DIR}/.config" || true)
   if [[ -n "${PATCH_DIRS}" ]]; then
+    ABS_LIST=""
     for d in ${PATCH_DIRS}; do
       [[ -z "${d}" ]] && continue
-      # Resolve relative paths from repo root
+      # Resolve relative paths from repo root (not buildroot/)
       if [[ "${d}" = /* ]]; then
         PDIR="${d}"
       else
@@ -76,7 +77,14 @@ if [[ -f "${OUTPUT_DIR}/.config" ]]; then
       fi
       mkdir -p "${PDIR}"
       info "Ensured patch dir exists: ${PDIR}"
+      ABS_LIST+="${PDIR} "
     done
+    ABS_LIST=${ABS_LIST%% } # trim trailing space
+    if [[ -n "${ABS_LIST}" ]]; then
+      sed -i -E "s|^BR2_GLOBAL_PATCH_DIR=.*$|BR2_GLOBAL_PATCH_DIR=\"${ABS_LIST}\"|" "${OUTPUT_DIR}/.config"
+      # Refresh config to account for edits
+      make -C "${BUILDROOT_DIR}" olddefconfig O="${OUTPUT_DIR}" >/dev/null
+    fi
   fi
 fi
 
