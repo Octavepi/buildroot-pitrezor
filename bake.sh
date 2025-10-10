@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# PiTrezor Buildroot build script (with base pre-save)
+# PiTrezor Buildroot build script (renamed from build.sh)
 
 set -Eeuo pipefail
 CPU=2
@@ -14,12 +14,12 @@ warn() { echo -e "⚠️  ${BOLD}$*${RESET}"; }
 err()  { echo -e "❌ ${BOLD}$*${RESET}" >&2; }
 
 cleanup() {
-  [[ ${RC:-0} -eq 0 ]] && ok "Build script finished." || err "Build script failed."
+  [[ ${RC:-0} -eq 0 ]] && ok "Bake script finished." || err "Bake script failed."
 }
 trap 'RC=$?; cleanup' EXIT
 
 if [[ -z "${1:-}" ]]; then
-  err "Usage: ./build.sh <deconfig> [overlay_name] [rotation] [debug]"
+  err "Usage: ./bake.sh <deconfig> [overlay_name] [rotation] [debug]"
   exit 1
 fi
 

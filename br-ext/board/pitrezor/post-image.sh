@@ -15,7 +15,7 @@ cp -f "${IMAGES_DIR}/rpi-firmware/"*.elf "${IMAGES_DIR}/" || true
 cp -f "${BOARD_DIR}/config.txt" "${IMAGES_DIR}/config.txt"
 cp -f "${BOARD_DIR}/cmdline.txt" "${IMAGES_DIR}/cmdline.txt"
 
-# === Accept driver/rotation args from build.sh (POSIX-compliant parsing) ===
+# === Accept driver/rotation args from bake.sh (POSIX-compliant parsing) ===
 if [ -n "${PITREZOR_DTO:-}" ]; then
     # POSIX-safe parsing: replace commas with newlines and iterate
     printf '%s\n' "${PITREZOR_DTO}" | tr ',' '\n' | while IFS= read -r dto; do

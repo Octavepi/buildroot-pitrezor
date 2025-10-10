@@ -50,7 +50,7 @@ git submodule update --init --recursive
 Example for Raspberry Pi 4 with waveshare35a drivers and 180° rotation:
 
 ```bash
-./build.sh rpi4 waveshare35a 180
+./bake.sh rpi4 waveshare35a 180
 ```
 
 ## Easy-Bake Workflow
@@ -58,16 +58,20 @@ Example for Raspberry Pi 4 with waveshare35a drivers and 180° rotation:
 - Run a full build without overlay/rotation to generate a base image:
 
   ```bash
-  ./build.sh rpi4-64
+  ./bake.sh rpi4-64
   ```
 
-  → Saves `output/rpi4-64/base/base-rpi4-64.img`
+  → Saves `output/base/rpi4-64/base-rpi4-64.img`
 
-- Use `easy-bake.sh` to create a customized image quickly:
+- Use `easy-bake.sh` to create a customized image quickly (overlays, rotation),
+  which patches `config.txt` inside the image’s boot partition and writes out a
+  new artifact under the same deconfig path:
+
   ```bash
   ./easy-bake.sh rpi4-64 waveshare35a 180
   ```
-  → Produces `output/rpi4-64/easybake/rpi4-64-final.img`
+
+  → Produces `output/easybake/rpi4-64/rpi4-64-final.img`
 
 ### 4. Flash and Boot
 
@@ -121,15 +125,17 @@ See the [PiTrezor User Guide (PDF)](docs/PiTrezor_UserGuide.pdf) for detailed se
 
 ### Config.in
 
-The file `br-ext/Config.in` is **auto-generated** by `build.sh` every time you run a build.
+The file `br-ext/Config.in` is currently maintained manually.
 
-- Do **not** edit it manually.
-- If you add a new package under `br-ext/package/`, just re-run `./build.sh ...` and it will be picked up automatically.
-- Always commit the updated `Config.in` after a build if it changes.
+- When adding a new package under `br-ext/package/<name>/`, add a `source` line
+  referencing its `Config.in` to `br-ext/Config.in`.
+- `br-ext/external.mk` auto-includes all `*.mk` files via wildcard; the `Config.in`
+  wiring controls visibility in menuconfig/defconfigs.
+- If we later add codegen for `Config.in`, this README will be updated accordingly.
 
 ### Build Script Paths
 
-`build.sh` auto-detects your repo root and passes absolute paths to Buildroot.  
+`bake.sh` auto-detects your repo root and passes absolute paths to Buildroot.  
 This ensures the build works regardless of where `docs/` or other folders sit.
 
 ---
