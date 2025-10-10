@@ -1,13 +1,13 @@
 #!/bin/sh
 # Default-deny inbound
-iptables -P INPUT DROP
-iptables -P FORWARD DROP
-iptables -P OUTPUT ACCEPT
+iptables -w -P INPUT DROP
+iptables -w -P FORWARD DROP
+iptables -w -P OUTPUT ACCEPT
 
 # Allow loopback
-iptables -A INPUT -i lo -j ACCEPT
+iptables -w -A INPUT -i lo -j ACCEPT
 # Allow established/related
-iptables -A INPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
+iptables -w -A INPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
 
 # Allow Bridge over USB gadget interface (usb0) only
-iptables -A INPUT -i usb0 -p tcp --dport 21324 -j ACCEPT
+iptables -w -A INPUT -i usb0 -p tcp --dport 21324 -j ACCEPT

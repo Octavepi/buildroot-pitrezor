@@ -1,38 +1,51 @@
 image boot.vfat {
-  vfat {
-    files = {
-      "__DTB__",
-      "Image",
-      "overlays",
-      "fixup4.dat",
-      "start4.elf",
-      "config.txt",
-      "cmdline.txt"
-    }
-  }
-  size = 64M
+	vfat {
+		files = {
+			"__DTB__",
+			"Image",
+			"overlays",
+			"__FIXUP__",
+			"__START__",
+			"config.txt",
+			"cmdline.txt"
+		}
+	}
+	size = 64M
 }
 
 image rootfs.ext4 {
-  ext4 {
-    label = "rootfs"
-  }
-  size = 256M
+	ext4 {
+		label = "rootfs"
+	}
+	size = 256M
+}
+
+image data.ext4 {
+	ext4 {
+		label = "data"
+	}
+	size = 128M
 }
 
 image sdcard.img {
-  hdimage { }
+	hdimage { }
 
-  partition boot {
-    partition-type = 0xC
-    bootable = "true"
-    image = "boot.vfat"
-    offset = 4M
-  }
+	partition boot {
+		partition-type = 0xC
+		bootable = "true"
+		image = "boot.vfat"
+		offset = 4M
+	}
 
-  partition rootfs {
-    partition-type = 0x83
-    image = "rootfs.ext4"
-    offset = 72M
-  }
+	partition rootfs {
+		partition-type = 0x83
+		image = "rootfs.ext4"
+		offset = 72M
+	}
+
+	partition data {
+		partition-type = 0x83
+		image = "data.ext4"
+		offset = 332M
+	}
 }
