@@ -17,7 +17,10 @@ cp -f "${BOARD_DIR}/cmdline.txt" "${IMAGES_DIR}/cmdline.txt"
 
 # === Accept driver/rotation args from build.sh (aligned vars) ===
 if [ -n "${PITREZOR_DTO:-}" ]; then
-    echo "dtoverlay=${PITREZOR_DTO}" >> "${IMAGES_DIR}/config.txt"
+    IFS=',' read -ra DTOS <<< "${PITREZOR_DTO}"
+    for dto in "${DTOS[@]}"; do
+        echo "dtoverlay=${dto}" >> "${IMAGES_DIR}/config.txt"
+    done
 fi
 if [ -n "${PITREZOR_ROT:-}" ]; then
     echo "display_rotate=${PITREZOR_ROT}" >> "${IMAGES_DIR}/config.txt"
